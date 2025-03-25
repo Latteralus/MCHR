@@ -1,0 +1,94 @@
+<!-- Sidebar Component -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <img src="/assets/img/logo.png" alt="Mountain Care Logo">
+        <span>Mountain Care</span>
+    </div>
+    <nav class="sidebar-menu">
+        <a href="/index.html" class="menu-item" id="nav-dashboard">
+            <i class="fas fa-home"></i>
+            Dashboard
+        </a>
+        <a href="/pages/employees/index.html" class="menu-item" id="nav-employees">
+            <i class="fas fa-users"></i>
+            Employees
+        </a>
+        <a href="/pages/attendance/index.html" class="menu-item" id="nav-attendance">
+            <i class="fas fa-calendar-alt"></i>
+            Attendance
+        </a>
+        <a href="/pages/leave/index.html" class="menu-item" id="nav-leave">
+            <i class="fas fa-calendar-check"></i>
+            Leave Management
+        </a>
+        <a href="/pages/onboarding/index.html" class="menu-item" id="nav-onboarding">
+            <i class="fas fa-clipboard-list"></i>
+            Onboarding
+        </a>
+        <a href="/pages/offboarding/index.html" class="menu-item" id="nav-offboarding">
+            <i class="fas fa-user-minus"></i>
+            Offboarding
+        </a>
+        <a href="/pages/compliance/index.html" class="menu-item" id="nav-compliance">
+            <i class="fas fa-shield-alt"></i>
+            Compliance
+        </a>
+        <a href="/pages/documents/index.html" class="menu-item" id="nav-documents">
+            <i class="fas fa-file-alt"></i>
+            Documents
+        </a>
+        <a href="/pages/settings/index.html" class="menu-item" id="nav-settings">
+            <i class="fas fa-cog"></i>
+            Settings
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <img src="/assets/img/user-avatars/default.png" alt="User avatar" id="user-avatar">
+        <div class="user-info">
+            <div class="user-name" id="user-name">Faith Calkins</div>
+            <div class="user-role" id="user-role">HR Director</div>
+        </div>
+    </div>
+</aside>
+
+<style>
+    /* Sidebar styles */
+    .sidebar {
+        width: var(--sidebar-width);
+        background-color: white;
+        box-shadow: var(--shadow);
+        padding: 1.5rem 0;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 100;
+    }
+
+    .sidebar-logo {
+        padding: 0 1.5rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .sidebar-logo img {
+        height: 40px;
+    }
+
+    .sidebar-logo span {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary);
+        margin-left: 10px;
+    }
+
+    .sidebar-menu {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .menu-item {
+        display: flex;

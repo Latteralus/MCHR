@@ -1,0 +1,272 @@
+<!-- Footer Component -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <img src="/assets/img/logo.png" alt="Mountain Care Logo" class="footer-logo">
+            <div class="footer-tagline">
+                Mountain Care HR Management
+            </div>
+        </div>
+        <div class="footer-links">
+            <div class="footer-links-group">
+                <h5>Quick Links</h5>
+                <ul>
+                    <li><a href="/index.html">Dashboard</a></li>
+                    <li><a href="/pages/employees/index.html">Employees</a></li>
+                    <li><a href="/pages/compliance/index.html">Compliance</a></li>
+                    <li><a href="/pages/documents/index.html">Documents</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-group">
+                <h5>Resources</h5>
+                <ul>
+                    <li><a href="/pages/help/user-guide.html">User Guide</a></li>
+                    <li><a href="/pages/help/faq.html">FAQ</a></li>
+                    <li><a href="/pages/help/support.html">Support</a></li>
+                    <li><a href="/pages/help/training.html">Training</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-group">
+                <h5>Legal</h5>
+                <ul>
+                    <li><a href="/pages/legal/terms.html">Terms of Service</a></li>
+                    <li><a href="/pages/legal/privacy.html">Privacy Policy</a></li>
+                    <li><a href="/pages/legal/compliance.html">Compliance</a></li>
+                    <li><a href="/pages/legal/security.html">Security</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-contact">
+            <h5>Contact Us</h5>
+            <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <a href="mailto:support@mountaincarehr.com">support@mountaincarehr.com</a>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-phone"></i>
+                <a href="tel:+18005551234">1-800-555-1234</a>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>123 Mountain View Drive, Seattle, WA 98101</span>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="copyright">
+            &copy; 2025 Mountain Care Healthcare. All rights reserved.
+        </div>
+        <div class="version">
+            Version 2.4.1
+        </div>
+        <div class="social-links">
+            <a href="#" class="social-link" aria-label="Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-link" aria-label="Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="social-link" aria-label="LinkedIn">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="#" class="social-link" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </div>
+    </div>
+</footer>
+
+<style>
+    /* Footer Styles */
+    .footer {
+        background-color: var(--gray-800);
+        color: var(--gray-300);
+        padding-top: var(--spacing-xl);
+        margin-top: var(--spacing-xxl);
+    }
+    
+    .footer-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 var(--spacing-lg);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: var(--spacing-xl);
+    }
+    
+    .footer-brand {
+        flex: 0 0 100%;
+        max-width: 300px;
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .footer-logo {
+        height: 40px;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .footer-tagline {
+        font-size: var(--font-size-sm);
+        color: var(--gray-400);
+    }
+    
+    .footer-links {
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xl);
+    }
+    
+    .footer-links-group {
+        flex: 1;
+        min-width: 160px;
+    }
+    
+    .footer-links-group h5 {
+        color: white;
+        margin-bottom: var(--spacing-md);
+        font-size: var(--font-size-md);
+        font-weight: 600;
+    }
+    
+    .footer-links-group ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .footer-links-group li {
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .footer-links-group a {
+        color: var(--gray-400);
+        text-decoration: none;
+        transition: color 0.2s ease;
+        font-size: var(--font-size-sm);
+    }
+    
+    .footer-links-group a:hover {
+        color: white;
+    }
+    
+    .footer-contact {
+        flex: 0 0 100%;
+        max-width: 300px;
+    }
+    
+    .footer-contact h5 {
+        color: white;
+        margin-bottom: var(--spacing-md);
+        font-size: var(--font-size-md);
+        font-weight: 600;
+    }
+    
+    .contact-item {
+        margin-bottom: var(--spacing-sm);
+        display: flex;
+        align-items: center;
+    }
+    
+    .contact-item i {
+        color: var(--primary-light);
+        margin-right: var(--spacing-sm);
+        width: 16px;
+    }
+    
+    .contact-item a, .contact-item span {
+        color: var(--gray-400);
+        font-size: var(--font-size-sm);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .contact-item a:hover {
+        color: white;
+    }
+    
+    .footer-bottom {
+        margin-top: var(--spacing-xl);
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-top: 1px solid var(--gray-700);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        font-size: var(--font-size-xs);
+        color: var(--gray-500);
+    }
+    
+    .copyright, .version {
+        margin: var(--spacing-xs) 0;
+    }
+    
+    .social-links {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+    
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--gray-700);
+        color: var(--gray-300);
+        transition: all 0.2s ease;
+    }
+    
+    .social-link:hover {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .footer-container {
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+        
+        .footer-brand, .footer-contact {
+            max-width: 100%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .footer-links {
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+        
+        .footer-links-group {
+            flex: 0 0 100%;
+        }
+        
+        .footer-bottom {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .social-links {
+            margin-top: var(--spacing-md);
+            justify-content: center;
+        }
+    }
+    
+    /* Dark theme override */
+    [data-theme="dark"] .footer {
+        background-color: var(--gray-900);
+    }
+    
+    [data-theme="dark"] .footer-bottom {
+        border-top-color: var(--gray-800);
+    }
+    
+    [data-theme="dark"] .social-link {
+        background-color: var(--gray-800);
+    }
+</style>

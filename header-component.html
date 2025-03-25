@@ -1,0 +1,331 @@
+<!-- Header Component -->
+<div class="header">
+    <div class="page-title">
+        <h1 id="page-heading">Page Title</h1>
+        <div class="page-subtitle" id="page-subtitle">Subtitle text goes here</div>
+    </div>
+    <div class="header-actions">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search..." id="global-search">
+        </div>
+        <div class="notification-badge" id="notification-trigger">
+            <i class="fas fa-bell"></i>
+            <span class="badge" id="notification-count">0</span>
+        </div>
+        <button class="btn btn-primary" id="primary-action-btn">
+            <i class="fas fa-plus"></i> <span id="primary-action-text">Action</span>
+        </button>
+    </div>
+</div>
+
+<!-- Notification Dropdown -->
+<div class="notification-dropdown" id="notification-dropdown">
+    <div class="notification-header">
+        <h4>Notifications</h4>
+        <button class="btn-link" id="mark-all-read">Mark all as read</button>
+    </div>
+    <div class="notification-body" id="notification-list">
+        <!-- Notifications will be inserted here dynamically -->
+        <div class="empty-state">No new notifications</div>
+    </div>
+    <div class="notification-footer">
+        <a href="/pages/notifications/index.html" class="btn-link">View all notifications</a>
+    </div>
+</div>
+
+<style>
+    /* Header Styles */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .page-title h1 {
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+    }
+
+    .page-subtitle {
+        color: var(--gray-600);
+        margin-top: var(--spacing-xs);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: center;
+    }
+
+    /* Notification Dropdown */
+    .notification-dropdown {
+        position: absolute;
+        top: 50px;
+        right: 20px;
+        width: 320px;
+        background-color: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.2s ease;
+        max-height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .notification-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .notification-header {
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notification-header h4 {
+        margin: 0;
+        font-size: var(--font-size-md);
+    }
+
+    .notification-body {
+        padding: 0;
+        overflow-y: auto;
+        max-height: 300px;
+        flex-grow: 1;
+    }
+
+    .notification-item {
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--gray-200);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .notification-item:hover {
+        background-color: var(--gray-100);
+    }
+
+    .notification-item.unread {
+        background-color: rgba(0, 121, 107, 0.05);
+    }
+
+    .notification-item.unread:hover {
+        background-color: rgba(0, 121, 107, 0.1);
+    }
+
+    .notification-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(0, 121, 107, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .notification-content {
+        flex-grow: 1;
+    }
+
+    .notification-title {
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .notification-message {
+        font-size: var(--font-size-sm);
+        color: var(--gray-600);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .notification-time {
+        font-size: var(--font-size-xs);
+        color: var(--gray-500);
+    }
+
+    .notification-footer {
+        padding: var(--spacing-md);
+        border-top: 1px solid var(--gray-200);
+        text-align: center;
+    }
+
+    .btn-link {
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0;
+        text-decoration: none;
+    }
+
+    .btn-link:hover {
+        text-decoration: underline;
+        color: var(--primary-dark);
+    }
+
+    .empty-state {
+        padding: var(--spacing-xl);
+        text-align: center;
+        color: var(--gray-500);
+        font-size: var(--font-size-sm);
+    }
+
+    @media (max-width: 768px) {
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            margin-top: var(--spacing-md);
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .notification-dropdown {
+            width: calc(100% - 40px);
+            right: 20px;
+            left: 20px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Notification dropdown toggle
+        const notificationTrigger = document.getElementById('notification-trigger');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+        
+        if (notificationTrigger && notificationDropdown) {
+            notificationTrigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+                
+                // Load notifications if dropdown is shown
+                if (notificationDropdown.classList.contains('show')) {
+                    loadNotifications();
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!notificationDropdown.contains(e.target) && e.target !== notificationTrigger) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+        }
+        
+        // Mark all as read functionality
+        const markAllReadBtn = document.getElementById('mark-all-read');
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', function() {
+                const unreadItems = document.querySelectorAll('.notification-item.unread');
+                unreadItems.forEach(item => {
+                    item.classList.remove('unread');
+                });
+                
+                // Update notification count
+                document.getElementById('notification-count').textContent = '0';
+            });
+        }
+        
+        // Function to load notifications (placeholder for real implementation)
+        function loadNotifications() {
+            // This would typically fetch from an API or local storage
+            // For now, we'll use dummy data
+            const notifications = [
+                {
+                    id: 1,
+                    title: 'License Expiry',
+                    message: 'James Kirk\'s Pharmacist License expires in 7 days',
+                    time: '30 minutes ago',
+                    icon: 'fa-exclamation-triangle',
+                    read: false
+                },
+                {
+                    id: 2,
+                    title: 'Leave Request',
+                    message: 'Sarah Johnson submitted a new leave request',
+                    time: '2 hours ago',
+                    icon: 'fa-calendar-alt',
+                    read: false
+                },
+                {
+                    id: 3,
+                    title: 'New Employee',
+                    message: 'Onboarding process started for Michael Brown',
+                    time: 'Yesterday',
+                    icon: 'fa-user-plus',
+                    read: true
+                }
+            ];
+            
+            const notificationList = document.getElementById('notification-list');
+            
+            if (notificationList) {
+                // Clear current notifications
+                notificationList.innerHTML = '';
+                
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = '<div class="empty-state">No new notifications</div>';
+                    return;
+                }
+                
+                // Count unread notifications
+                const unreadCount = notifications.filter(notif => !notif.read).length;
+                document.getElementById('notification-count').textContent = unreadCount.toString();
+                
+                // Render notifications
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('div');
+                    notificationItem.className = 'notification-item';
+                    if (!notification.read) {
+                        notificationItem.classList.add('unread');
+                    }
+                    
+                    notificationItem.innerHTML = `
+                        <div class="notification-icon">
+                            <i class="fas ${notification.icon}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${notification.time}</div>
+                        </div>
+                    `;
+                    
+                    // Mark as read on click
+                    notificationItem.addEventListener('click', function() {
+                        if (this.classList.contains('unread')) {
+                            this.classList.remove('unread');
+                            
+                            // Update count
+                            const currentCount = parseInt(document.getElementById('notification-count').textContent);
+                            document.getElementById('notification-count').textContent = (currentCount - 1).toString();
+                        }
+                    });
+                    
+                    notificationList.appendChild(notificationItem);
+                });
+            }
+        }
+    });
+</script>

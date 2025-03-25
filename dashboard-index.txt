@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mountain Care HR - Dashboard</title>
+    
+    <!-- Page Metadata -->
+    <meta name="page-id" content="dashboard">
+    <meta name="page-heading" content="Dashboard">
+    <meta name="page-subtitle" content="Welcome back! Here's what's happening today.">
+    <meta name="primary-action" content="New Employee">
+    <meta name="primary-action-icon" content="fa-user-plus">
+    <meta name="primary-action-url" content="/pages/employees/add.html">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/dashboard.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar will be loaded here -->
+        <div id="sidebar-container"></div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header will be loaded here -->
+            <div id="header-container"></div>
+            
+            <!-- Dashboard Content -->
+            <div class="dashboard-grid grid grid-cols-12">
+                <!-- Stats Row -->
+                <div class="col-span-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="stat-label">
+                                <i class="fas fa-users"></i> Total Employees
+                            </div>
+                            <div class="stat-value">198</div>
+                            <div class="stat-description">
+                                <span class="stat-trend trend-up">
+                                    <i class="fas fa-arrow-up"></i> 3.2%
+                                </span>
+                                from last month
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="stat-label">
+                                <i class="fas fa-calendar-check"></i> Attendance Rate
+                            </div>
+                            <div class="stat-value">96.5%</div>
+                            <div class="stat-description">
+                                <span class="stat-trend trend-up">
+                                    <i class="fas fa-arrow-up"></i> 1.8%
+                                </span>
+                                from last month
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="stat-label">
+                                <i class="fas fa-hourglass-half"></i> Leave Requests
+                            </div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-description">
+                                <span class="stat-trend trend-down">
+                                    <i class="fas fa-arrow-down"></i> 2.5%
+                                </span>
+                                from last month
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="stat-label">
+                                <i class="fas fa-clipboard-list"></i> Compliance Rate
+                            </div>
+                            <div class="stat-value">98.2%</div>
+                            <div class="stat-description">
+                                <span class="stat-trend trend-up">
+                                    <i class="fas fa-arrow-up"></i> 0.7%
+                                </span>
+                                from last month
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="col-span-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Employee Attendance Trends</h3>
+                            <div class="card-actions">
+                                <select id="chart-time-period" class="form-select">
+                                    <option value="week">This Week</option>
+                                    <option value="month" selected>This Month</option>
+                                    <option value="quarter">This Quarter</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="attendance-chart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">License Operations</h3>
+                            <a href="/pages/compliance/licenses.html" class="action-link">View all <i class="fas fa-chevron-right"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <div class="license-item">
+                                <div class="avatar">JK</div>
+                                <div class="license-item-info">
+                                    <div class="license-item-name">James Kirk</div>
+                                    <div class="license-item-detail">Pharmacist License</div>
+                                </div>
+                                <div class="status status-danger">7 days</div>
+                            </div>
+                            <div class="license-item">
+                                <div class="avatar">LM</div>
+                                <div class="license-item-info">
+                                    <div class="license-item-name">Leonard McCoy</div>
+                                    <div class="license-item-detail">Pharmacy Tech License</div>
+                                </div>
+                                <div class="status status-warning">14 days</div>
+                            </div>
+                            <div class="license-item">
+                                <div class="avatar">NU</div>
+                                <div class="license-item-info">
+                                    <div class="license-item-name">Nyota Uhura</div>
+                                    <div class="license-item-detail">Controlled Substance License</div>
+                                </div>
+                                <div class="status status-warning">21 days</div>
+                            </div>
+                            <div class="license-item">
+                                <div class="avatar">WM</div>
+                                <div class="license-item-info">
+                                    <div class="license-item-name">William Manager</div>
+                                    <div class="license-item-detail">90 Day Review</div>
+                                </div>
+                                <div class="status status-warning">23 days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity and Department Overview -->
+                <div class="col-span-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Activity</h3>
+                            <a href="/pages/activity/index.html" class="action-link">View all <i class="fas fa-chevron-right"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <div class="activity-feed">
+                                <div class="activity-item">
+                                    <div class="activity-badge"></div>
+                                    <div class="activity-time">Today, 10:30 AM</div>
+                                    <div class="activity-description">
+                                        <span class="activity-user">Sarah Johnson</span> approved time off request for Emily Chen
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-badge"></div>
+                                    <div class="activity-time">Today, 9:45 AM</div>
+                                    <div class="activity-description">
+                                        <span class="activity-user">David Wilson</span> uploaded a new document to the compliance portal
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-badge"></div>
+                                    <div class="activity-time">Today, 8:15 AM</div>
+                                    <div class="activity-description">
+                                        <span class="activity-user">Lisa Patel</span> completed onboarding for Mark Thompson
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-badge"></div>
+                                    <div class="activity-time">Yesterday, 4:30 PM</div>
+                                    <div class="activity-description">
+                                        <span class="activity-user">James Rodriguez</span> updated the employee handbook
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-badge"></div>
+                                    <div class="activity-time">Yesterday, 2:15 PM</div>
+                                    <div class="activity-description">
+                                        <span class="activity-user">Maria Garcia</span> added 3 new training modules to the compliance system
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Department Overview</h3>
+                            <a href="/pages/employees/departments.html" class="action-link">Details <i class="fas fa-chevron-right"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="departments-chart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Access Module Cards -->
+                <div class="col-span-12">
+                    <h3 class="section-title">Quick Access</h3>
+                    <div class="grid grid-cols-5 gap-4">
+                        <div class="card module-card">
+                            <div class="module-card-body">
+                                <div class="module-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <h4 class="module-title">Onboarding</h4>
+                                <p class="module-description">Add new employees to the system</p>
+                                <a href="/pages/onboarding/index.html" class="action-link">Get Started</a>
+                            </div>
+                        </div>
+                        <div class="card module-card">
+                            <div class="module-card-body">
+                                <div class="module-icon">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </div>
+                                <h4 class="module-title">Compliance</h4>
+                                <p class="module-description">Track licenses and certifications</p>
+                                <a href="/pages/compliance/index.html" class="action-link">Manage</a>
+                            </div>
+                        </div>
+                        <div class="card module-card">
+                            <div class="module-card-body">
+                                <div class="module-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h4 class="module-title">Time Off</h4>
+                                <p class="module-description">Manage leave requests</p>
+                                <a href="/pages/leave/index.html" class="action-link">Review</a>
+                            </div>
+                        </div>
+                        <div class="card module-card">
+                            <div class="module-card-body">
+                                <div class="module-icon">
+                                    <i class="fas fa-file-upload"></i>
+                                </div>
+                                <h4 class="module-title">Documents</h4>
+                                <p class="module-description">Upload and manage files</p>
+                                <a href="/pages/documents/index.html" class="action-link">Access</a>
+                            </div>
+                        </div>
+                        <div class="card module-card">
+                            <div class="module-card-body">
+                                <div class="module-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h4 class="module-title">Reports</h4>
+                                <p class="module-description">Generate HR analytics</p>
+                                <a href="/pages/reports/index.html" class="action-link">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Events -->
+                <div class="col-span-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Upcoming Events</h3>
+                            <a href="/pages/calendar/index.html" class="action-link">Full Calendar <i class="fas fa-chevron-right"></i></a>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Event</th>
+                                        <th>Time</th>
+                                        <th>Location</th>
+                                        <th>Attendees</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Mar 27, 2025</td>
+                                        <td>Department Head Meeting</td>
+                                        <td>10:00 AM</td>
+                                        <td>Conference Room A</td>
+                                        <td>12</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn-icon" data-tooltip="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn-icon" data-tooltip="Edit Event">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mar 28, 2025</td>
+                                        <td>Quarterly Review</td>
+                                        <td>2:00 PM</td>
+                                        <td>Conference Room B</td>
+                                        <td>8</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn-icon" data-tooltip="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn-icon" data-tooltip="Edit Event">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Apr 1, 2025</td>
+                                        <td>New Employee Orientation</td>
+                                        <td>9:00 AM</td>
+                                        <td>Training Room</td>
+                                        <td>5</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn-icon" data-tooltip="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn-icon" data-tooltip="Edit Event">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer will be loaded here -->
+            <div id="footer-container"></div>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard.js"></script>
+    
+    <script>
+        // Initialize dashboard-specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts once the DOM is fully loaded
+            initAttendanceChart();
+            initDepartmentsChart();
+        });
+        
+        // Attendance Chart
+        function initAttendanceChart() {
+            const ctx = document.getElementById('attendance-chart').getContext('2d');
+            
+            // Sample data - would come from an API in production
+            const attendanceData = {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'],
+                datasets: [
+                    {
+                        label: 'Present',
+                        data: [185, 188, 187, 184, 180, 25, 20, 190, 191, 188, 186, 182, 24, 22, 190, 192, 188, 185, 180, 23, 20, 188, 190, 185, 183, 178, 22, 20, 190, 188],
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Absent',
+                        data: [8, 5, 6, 9, 13, 2, 1, 3, 2, 5, 7, 11, 1, 0, 3, 1, 5, 8, 13, 2, 1, 5, 3, 8, 10, 15, 2, 1, 3, 5],
+                        backgroundColor: 'rgba(244, 67, 54, 0.2)',
+                        borderColor: 'rgba(244, 67, 54, 1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Leave',
+                        data: [5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 5, 0, 0, 5, 5],
+                        backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                        borderColor: 'rgba(255, 152, 0, 1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }
+                ]
+            };
+            
+            const attendanceChart = new Chart(ctx, {
+                type: 'line',
+                data: attendanceData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stacked: false
+                        }
+                    }
+                }
+            });
+            
+            // Handle time period changes
+            document.getElementById('chart-time-period').addEventListener('change', function() {
+                // In a real app, this would fetch new data based on the selected period
+                console.log('Time period changed to:', this.value);
+                // For demo, we'll just log the change
+            });
+        }
+        
+        // Departments Chart
+        function initDepartmentsChart() {
+            const ctx = document.getElementById('departments-chart').getContext('2d');
+            
+            // Sample data - would come from an API in production
+            const departmentsData = {
+                labels: ['Administration', 'Pharmacy', 'Nursing', 'Physicians', 'Technicians', 'Support Staff'],
+                datasets: [{
+                    data: [15, 42, 58, 30, 45, 28],
+                    backgroundColor: [
+                        'rgba(0, 121, 107, 0.8)',
+                        'rgba(0, 188, 212, 0.8)',
+                        'rgba(77, 182, 172, 0.8)',
+                        'rgba(0, 150, 136, 0.8)',
+                        'rgba(38, 166, 154, 0.8)',
+                        'rgba(128, 203, 196, 0.8)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            
+            const departmentsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: departmentsData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
