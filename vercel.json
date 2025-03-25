@@ -1,0 +1,73 @@
+{
+    "version": 2,
+    "name": "mountain-care-hr",
+    "builds": [
+      { 
+        "src": "**/*.html", 
+        "use": "@vercel/static" 
+      },
+      { 
+        "src": "assets/**/*", 
+        "use": "@vercel/static" 
+      },
+      { 
+        "src": "components/**/*", 
+        "use": "@vercel/static" 
+      },
+      { 
+        "src": "pages/**/*", 
+        "use": "@vercel/static" 
+      }
+    ],
+    "routes": [
+      {
+        "src": "/",
+        "dest": "/index.html"
+      },
+      {
+        "src": "/index",
+        "dest": "/index.html"
+      },
+      {
+        "src": "/pages/(.*)",
+        "dest": "/pages/$1"
+      },
+      {
+        "src": "/components/(.*)",
+        "dest": "/components/$1"
+      },
+      {
+        "src": "/assets/(.*)",
+        "dest": "/assets/$1"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/$1"
+      }
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "github": {
+      "silent": true
+    },
+    "headers": [
+      {
+        "source": "/(.*)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=0, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/assets/(.*)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      }
+    ]
+  }
