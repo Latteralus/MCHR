@@ -133,7 +133,7 @@ export default function SettingsPage() {
                       </label>
                       <input
                         type="text"
-                        defaultValue="Mountain Care Medical Center"
+                        defaultValue="Mountain Care Pharmacy"
                         className="w-full border-gray-300 rounded-md shadow-sm"
                       />
                     </div>
@@ -223,13 +223,13 @@ export default function SettingsPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Frank Calkins</div>
+                          <div className="text-sm font-medium text-gray-900">Faith Calkins</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">fcalkins@mountaincare.example</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">Admin</div>
+                          <div className="text-sm text-gray-500">HR Director</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -249,7 +249,7 @@ export default function SettingsPage() {
                           <div className="text-sm text-gray-500">mrodriguez@mountaincare.example</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">HR Manager</div>
+                          <div className="text-sm text-gray-500">Project Manager</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -263,13 +263,13 @@ export default function SettingsPage() {
                       </tr>
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">David Johnson</div>
+                          <div className="text-sm font-medium text-gray-900">Traci Tryon</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">djohnson@mountaincare.example</div>
+                          <div className="text-sm text-gray-500">ttryon@mountaincare.example</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">Department Manager</div>
+                          <div className="text-sm text-gray-500">Operations Director</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -321,10 +321,10 @@ export default function SettingsPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Nursing</div>
+                          <div className="text-sm font-medium text-gray-900">Administration</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">Sarah Thompson</div>
+                          <div className="text-sm text-gray-500">Shara Haynes</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">68</div>
@@ -336,10 +336,10 @@ export default function SettingsPage() {
                       </tr>
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Administration</div>
+                          <div className="text-sm font-medium text-gray-900">Operations</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">Robert Chen</div>
+                          <div className="text-sm text-gray-500">Traci Tryon</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">42</div>
@@ -351,10 +351,10 @@ export default function SettingsPage() {
                       </tr>
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Radiology</div>
+                          <div className="text-sm font-medium text-gray-900">Finance</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">Michael Garcia</div>
+                          <div className="text-sm text-gray-500">Laura Sanchez</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">24</div>
@@ -366,7 +366,7 @@ export default function SettingsPage() {
                       </tr>
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Pediatrics</div>
+                          <div className="text-sm font-medium text-gray-900">Pharmacists</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">Jennifer Wilson</div>
@@ -659,7 +659,7 @@ export default function SettingsPage() {
                           <div className="text-sm text-gray-900">Mar 25, 2025 - 15:32:45</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">Frank Calkins</div>
+                          <div className="text-sm text-gray-900">Faith Calkins</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
