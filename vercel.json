@@ -6,6 +6,8 @@
   "rewrites": [
     { "source": "/", "destination": "/public/index.html" },
     { "source": "/index", "destination": "/public/index.html" },
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/components/(.*)", "destination": "/components/$1" },
     { "source": "/(.*)", "destination": "/$1" }
   ],
   "headers": [

@@ -5,39 +5,39 @@
         <span>Mountain Care</span>
     </div>
     <nav class="sidebar-menu">
-        <a href="/public/index.html" class="menu-item" id="nav-dashboard">
+        <a href="/" class="menu-item" id="nav-dashboard">
             <i class="fas fa-home"></i>
             Dashboard
         </a>
-        <a href="/public/employees/index.html" class="menu-item" id="nav-employees">
+        <a href="/employees/" class="menu-item" id="nav-employees">
             <i class="fas fa-users"></i>
             Employees
         </a>
-        <a href="/public/attendance/index.html" class="menu-item" id="nav-attendance">
+        <a href="/attendance/" class="menu-item" id="nav-attendance">
             <i class="fas fa-calendar-alt"></i>
             Attendance
         </a>
-        <a href="/public/leave/index.html" class="menu-item" id="nav-leave">
+        <a href="/leave/" class="menu-item" id="nav-leave">
             <i class="fas fa-calendar-check"></i>
             Leave Management
         </a>
-        <a href="/public/onboarding/index.html" class="menu-item" id="nav-onboarding">
+        <a href="/onboarding/" class="menu-item" id="nav-onboarding">
             <i class="fas fa-clipboard-list"></i>
             Onboarding
         </a>
-        <a href="/public/offboarding/index.html" class="menu-item" id="nav-offboarding">
+        <a href="/offboarding/" class="menu-item" id="nav-offboarding">
             <i class="fas fa-user-minus"></i>
             Offboarding
         </a>
-        <a href="/public/compliance/index.html" class="menu-item" id="nav-compliance">
+        <a href="/compliance/" class="menu-item" id="nav-compliance">
             <i class="fas fa-shield-alt"></i>
             Compliance
         </a>
-        <a href="/public/documents/index.html" class="menu-item" id="nav-documents">
+        <a href="/documents/" class="menu-item" id="nav-documents">
             <i class="fas fa-file-alt"></i>
             Documents
         </a>
-        <a href="/public/settings/index.html" class="menu-item" id="nav-settings">
+        <a href="/settings/" class="menu-item" id="nav-settings">
             <i class="fas fa-cog"></i>
             Settings
         </a>
@@ -222,7 +222,7 @@
             const itemPath = href.replace(/^https?:\/\/[^\/]+/, '');
             
             // Check if current path contains this nav item's path
-            if (currentPath.includes(itemPath) && itemPath !== '/index.html') {
+            if (currentPath.includes(itemPath) && itemPath !== '/' && itemPath !== '/index.html') {
                 item.classList.add('active');
             } else if (currentPath === '/' || currentPath === '/index.html') {
                 // Special case for homepage

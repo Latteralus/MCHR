@@ -78,8 +78,15 @@ const MountainCare = {
      * Load a single HTML component
      */
     loadComponent: function(container, file) {
-        fetch(file)
-            .then(response => response.text())
+        // Add a random query parameter to avoid caching issues
+        const cacheBuster = `?_=${Date.now()}`;
+        fetch(file + cacheBuster)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to load component: ${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })
             .then(html => {
                 container.innerHTML = html;
                 // Trigger an event to notify that the component is loaded
@@ -90,7 +97,7 @@ const MountainCare = {
             })
             .catch(error => {
                 console.error(`Error loading component ${file}:`, error);
-                container.innerHTML = `<div class="error-message">Failed to load component</div>`;
+                container.innerHTML = `<div class="error-message">Failed to load component: ${error.message}</div>`;
             });
     },
     

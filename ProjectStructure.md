@@ -37,7 +37,7 @@ mountain-care-hr/
 │   │
 │   └── fonts/                  # Custom font files
 │
-├── pages/
+├── public/
 │   ├── index.html              # Dashboard/Home page (renamed from example.html)
 │   ├── employees/
 │   │   ├── index.html          # Employee list
