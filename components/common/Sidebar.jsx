@@ -16,7 +16,7 @@ const Sidebar = ({ isActive }) => {
             e.target.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%2232%22 height%3D%2232%22 viewBox%3D%220 0 24 24%22 fill%3D%22none%22 stroke%3D%22%231D4ED8%22 stroke-width%3D%222%22 stroke-linecap%3D%22round%22 stroke-linejoin%3D%22round%22%3E%3Cpath d%3D%22M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z%22%2F%3E%3Cpolyline points%3D%229 22 9 12 15 12 15 22%22%2F%3E%3C%2Fsvg%3E'
           }}
         />
-        <span>Mountain Care</span>
+        <span>HR</span>
       </div>
       
       <nav className="sidebar-menu">
