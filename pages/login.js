@@ -120,8 +120,7 @@ export default function Login() {
           )}
           
           <div className={styles.testCredentials}>
-            <p>Test with: admin | admin123</p>
-            <p>or: fcalkins | hr123</p>
+            <p>Test with: fcalkins | password</p>
           </div>
           
           <form className={styles.form} onSubmit={handleSubmit}>
