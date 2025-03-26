@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Head from 'next/head';
 
 const Layout = ({ children }) => {
   const { data: session, status } = useSession();
@@ -19,7 +20,12 @@ const Layout = ({ children }) => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-gray-600">Loading...</p>
+        <div className="bg-white p-8 rounded-lg shadow-md">
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+          <p className="text-center mt-4 text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -29,16 +35,27 @@ const Layout = ({ children }) => {
     return null;
   }
 
+  // Handle signout
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push('/login');
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen flex flex-col">
+      <Head>
+        <title>Mountain Care HR Platform</title>
+        <meta name="description" content="Mountain Care HR Management Platform" />
+        <link rel="icon" href="/favicon.ico" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+      </Head>
+
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/">
-              <a className="flex items-center">
-                {/* Use text instead of logo image */}
-                <span className="text-blue-600 font-bold text-xl">Mountain Care HR</span>
-              </a>
+              <span className="text-primary font-bold text-xl cursor-pointer">Mountain Care HR</span>
             </Link>
           </div>
           
@@ -52,91 +69,107 @@ const Layout = ({ children }) => {
                   {/* Display initials if no avatar */}
                   {session.user.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
+                <button 
+                  onClick={handleSignOut}
+                  className="ml-4 text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Sign out
+                </button>
               </div>
             )}
           </div>
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex flex-1">
         {/* Sidebar */}
         <div className="w-64 bg-white shadow-md min-h-screen">
           <nav className="mt-5 px-2">
             <Link href="/">
-              <a className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname === '/' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-home mr-3"></i>
                 Dashboard
-              </a>
+              </div>
             </Link>
             <Link href="/employees">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/employees') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-users mr-3"></i>
                 Employees
-              </a>
+              </div>
             </Link>
             <Link href="/attendance">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/attendance') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-calendar-alt mr-3"></i>
                 Attendance
-              </a>
+              </div>
             </Link>
             <Link href="/leave">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/leave') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-calendar-check mr-3"></i>
                 Leave
-              </a>
+              </div>
             </Link>
             <Link href="/compliance">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/compliance') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-shield-alt mr-3"></i>
                 Compliance
-              </a>
+              </div>
             </Link>
             <Link href="/documents">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/documents') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-file-alt mr-3"></i>
                 Documents
-              </a>
+              </div>
             </Link>
             <Link href="/onboarding">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/onboarding') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-clipboard-list mr-3"></i>
                 Onboarding
-              </a>
+              </div>
             </Link>
             <Link href="/offboarding">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/offboarding') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-user-minus mr-3"></i>
                 Offboarding
-              </a>
+              </div>
             </Link>
             <Link href="/reports">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/reports') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-chart-bar mr-3"></i>
                 Reports
-              </a>
+              </div>
             </Link>
             <Link href="/settings">
-              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
                 router.pathname.startsWith('/settings') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}>
+                <i className="fas fa-cog mr-3"></i>
                 Settings
-              </a>
+              </div>
             </Link>
           </nav>
         </div>
 
         {/* Main content */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto bg-gray-100">
           <main className="p-6">{children}</main>
         </div>
       </div>

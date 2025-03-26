@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
 
   // Public paths that don't require authentication
   const publicPaths = ['/login', '/forgot-password', '/reset-password'];
-  const isPublicPath = publicPaths.includes(router.pathname);
+  const isPublicPath = publicPaths.some(path => router.pathname.startsWith(path));
 
   // Set the user from the session
   useEffect(() => {
@@ -23,16 +23,17 @@ export function AuthProvider({ children }) {
     }
   }, [session]);
 
-  // Handle authentication redirects
+  // Handle authentication redirects - only if not in a loading state
   useEffect(() => {
-    if (!isLoading) {
-      if (!session && !isPublicPath) {
-        // Redirect to login if trying to access a protected route without being logged in
-        router.push(`/login?callbackUrl=${encodeURIComponent(router.asPath)}`);
-      } else if (session && isPublicPath && router.pathname !== '/reset-password') {
-        // Redirect to dashboard if already logged in and trying to access a public page
-        router.push('/');
-      }
+    // Don't do anything if still loading
+    if (isLoading) return;
+    
+    // Allow access to public paths without a session
+    if (isPublicPath) return;
+    
+    // Redirect to login if no session and trying to access protected route
+    if (!session && !isPublicPath) {
+      router.push(`/login?callbackUrl=${encodeURIComponent(router.asPath)}`);
     }
   }, [isLoading, session, isPublicPath, router]);
 
