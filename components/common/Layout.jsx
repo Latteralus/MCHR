@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -8,6 +8,12 @@ const Layout = ({ children }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const isLoading = status === 'loading';
+  const [sidebarActive, setSidebarActive] = useState(false);
+
+  // Toggle sidebar for mobile view
+  const toggleSidebar = () => {
+    setSidebarActive(!sidebarActive);
+  };
 
   // If not authenticated and not loading, redirect to login
   useEffect(() => {
@@ -22,7 +28,7 @@ const Layout = ({ children }) => {
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-md">
           <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            <div className="spinner"></div>
           </div>
           <p className="text-center mt-4 text-gray-600">Loading...</p>
         </div>
@@ -42,7 +48,7 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-100">
       <Head>
         <title>Mountain Care HR Platform</title>
         <meta name="description" content="Mountain Care HR Management Platform" />
@@ -54,8 +60,8 @@ const Layout = ({ children }) => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <Link href="/">
-              <span className="text-primary font-bold text-xl cursor-pointer">Mountain Care HR</span>
+            <Link href="/" legacyBehavior>
+              <a className="text-primary font-bold text-xl">Mountain Care HR</a>
             </Link>
           </div>
           
@@ -83,96 +89,124 @@ const Layout = ({ children }) => {
 
       <div className="flex flex-1">
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-md min-h-screen">
-          <nav className="mt-5 px-2">
-            <Link href="/">
-              <div className={`group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname === '/' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-home mr-3"></i>
+        <div className={`sidebar ${sidebarActive ? 'active' : ''}`}>
+          <div className="sidebar-logo">
+            <img src="/images/logo.png" alt="Mountain Care Logo" 
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%2232%22 height%3D%2232%22 viewBox%3D%220 0 24 24%22 fill%3D%22none%22 stroke%3D%22%231D4ED8%22 stroke-width%3D%222%22 stroke-linecap%3D%22round%22 stroke-linejoin%3D%22round%22%3E%3Cpath d%3D%22M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z%22%2F%3E%3Cpolyline points%3D%229 22 9 12 15 12 15 22%22%2F%3E%3C%2Fsvg%3E'
+              }}
+            />
+            <span>Mountain Care</span>
+          </div>
+          <nav className="sidebar-menu">
+            <Link href="/" legacyBehavior>
+              <a className={`menu-item ${router.pathname === '/' ? 'active' : ''}`}>
+                <i className="fas fa-home"></i>
                 Dashboard
-              </div>
+              </a>
             </Link>
-            <Link href="/employees">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/employees') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-users mr-3"></i>
+            <Link href="/employees" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/employees') ? 'active' : ''}`}>
+                <i className="fas fa-users"></i>
                 Employees
-              </div>
+              </a>
             </Link>
-            <Link href="/attendance">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/attendance') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-calendar-alt mr-3"></i>
+            <Link href="/attendance" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/attendance') ? 'active' : ''}`}>
+                <i className="fas fa-calendar-alt"></i>
                 Attendance
-              </div>
+              </a>
             </Link>
-            <Link href="/leave">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/leave') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-calendar-check mr-3"></i>
+            <Link href="/leave" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/leave') ? 'active' : ''}`}>
+                <i className="fas fa-calendar-check"></i>
                 Leave
-              </div>
+              </a>
             </Link>
-            <Link href="/compliance">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/compliance') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-shield-alt mr-3"></i>
+            <Link href="/compliance" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/compliance') ? 'active' : ''}`}>
+                <i className="fas fa-shield-alt"></i>
                 Compliance
-              </div>
+              </a>
             </Link>
-            <Link href="/documents">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/documents') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-file-alt mr-3"></i>
+            <Link href="/documents" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/documents') ? 'active' : ''}`}>
+                <i className="fas fa-file-alt"></i>
                 Documents
-              </div>
+              </a>
             </Link>
-            <Link href="/onboarding">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/onboarding') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-clipboard-list mr-3"></i>
+            <Link href="/onboarding" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/onboarding') ? 'active' : ''}`}>
+                <i className="fas fa-clipboard-list"></i>
                 Onboarding
-              </div>
+              </a>
             </Link>
-            <Link href="/offboarding">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/offboarding') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-user-minus mr-3"></i>
+            <Link href="/offboarding" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/offboarding') ? 'active' : ''}`}>
+                <i className="fas fa-user-minus"></i>
                 Offboarding
-              </div>
+              </a>
             </Link>
-            <Link href="/reports">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/reports') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-chart-bar mr-3"></i>
+            <Link href="/reports" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/reports') ? 'active' : ''}`}>
+                <i className="fas fa-chart-bar"></i>
                 Reports
-              </div>
+              </a>
             </Link>
-            <Link href="/settings">
-              <div className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer ${
-                router.pathname.startsWith('/settings') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}>
-                <i className="fas fa-cog mr-3"></i>
+            <Link href="/settings" legacyBehavior>
+              <a className={`menu-item ${router.pathname.startsWith('/settings') ? 'active' : ''}`}>
+                <i className="fas fa-cog"></i>
                 Settings
-              </div>
+              </a>
             </Link>
           </nav>
+          <div className="sidebar-footer">
+            <img 
+              src="/images/avatar.png" 
+              alt="User avatar" 
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%2232%22 height%3D%2232%22 viewBox%3D%220 0 24 24%22 fill%3D%22none%22 stroke%3D%22%23666666%22 stroke-width%3D%222%22 stroke-linecap%3D%22round%22 stroke-linejoin%3D%22round%22%3E%3Cpath d%3D%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22%2F%3E%3Ccircle cx%3D%2212%22 cy%3D%227%22 r%3D%224%22%2F%3E%3C%2Fsvg%3E'
+              }}
+            />
+            <div className="user-info">
+              <div className="user-name">{session?.user?.name || 'User'}</div>
+              <div className="user-role">{session?.user?.role || 'Staff'}</div>
+            </div>
+          </div>
         </div>
 
         {/* Main content */}
-        <div className="flex-1 overflow-auto bg-gray-100">
+        <div className="main-content">
           <main className="p-6">{children}</main>
         </div>
       </div>
+
+      {/* Mobile menu toggle button */}
+      <button 
+        className="mobile-menu-toggle" 
+        onClick={toggleSidebar}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: '200',
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--primary)',
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: 'none',
+          boxShadow: 'var(--shadow-md)',
+          cursor: 'pointer'
+        }}
+      >
+        <i className={`fas ${sidebarActive ? 'fa-times' : 'fa-bars'}`}></i>
+      </button>
     </div>
   );
 };
