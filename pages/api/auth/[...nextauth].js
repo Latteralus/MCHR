@@ -4,6 +4,18 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { AppDataSource } from "../../../utils/db";
 import User from "../../../entities/User";
 
+// Hardcoded test user for development
+const testUsers = [
+  {
+    id: "test-user-1",
+    email: "fcalkins@mountaincare.example",
+    name: "Frank Calkins",
+    passwordHash: "password", // In production, use proper hashing
+    role: "admin",
+    departmentId: "dept-1"
+  }
+];
+
 export const authOptions = {
   providers: [
     CredentialsProvider({
@@ -18,34 +30,60 @@ export const authOptions = {
         }
 
         try {
-          await AppDataSource.initialize();
-          const userRepository = AppDataSource.getRepository(User);
-          
-          const user = await userRepository.findOne({
-            where: { email: credentials.email },
-            relations: ['department']
-          });
+          // First, check if it's one of our hardcoded test users
+          const testUser = testUsers.find(user => 
+            user.email === credentials.email && 
+            user.passwordHash === credentials.password
+          );
 
-          // Here you would typically verify the password hash
-          // For development, we might use a simple check
-          if (user && user.passwordHash === credentials.password) {
-            await AppDataSource.destroy();
+          if (testUser) {
             return {
-              id: user.id,
-              email: user.email,
-              name: `${user.firstName} ${user.lastName}`,
-              role: user.role,
-              departmentId: user.department?.id
+              id: testUser.id,
+              email: testUser.email,
+              name: testUser.name,
+              role: testUser.role,
+              departmentId: testUser.departmentId
             };
           }
-          
-          await AppDataSource.destroy();
-          return null;
+
+          // If not a test user, try database authentication
+          try {
+            if (!AppDataSource.isInitialized) {
+              await AppDataSource.initialize();
+            }
+            
+            const userRepository = AppDataSource.getRepository(User);
+            
+            const user = await userRepository.findOne({
+              where: { email: credentials.email },
+              relations: ['department']
+            });
+
+            // Here you would typically verify the password hash
+            if (user && user.passwordHash === credentials.password) {
+              await AppDataSource.destroy();
+              return {
+                id: user.id,
+                email: user.email,
+                name: `${user.firstName} ${user.lastName}`,
+                role: user.role,
+                departmentId: user.department?.id
+              };
+            }
+            
+            if (AppDataSource.isInitialized) {
+              await AppDataSource.destroy();
+            }
+            return null;
+          } catch (dbError) {
+            console.error("Database auth error:", dbError);
+            if (AppDataSource.isInitialized) {
+              await AppDataSource.destroy();
+            }
+            return null;
+          }
         } catch (error) {
           console.error("Auth error:", error);
-          if (AppDataSource.isInitialized) {
-            await AppDataSource.destroy();
-          }
           return null;
         }
       }
@@ -77,6 +115,7 @@ export const authOptions = {
     signIn: '/login',
     error: '/login',
   },
+  debug: process.env.NODE_ENV === 'development',
 };
 
 export default NextAuth(authOptions);

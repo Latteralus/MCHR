@@ -1,5 +1,4 @@
-// components/common/Layout.jsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -10,7 +9,7 @@ const Layout = ({ children }) => {
   const isLoading = status === 'loading';
 
   // If not authenticated and not loading, redirect to login
-  React.useEffect(() => {
+  useEffect(() => {
     if (status !== 'loading' && !session) {
       router.push('/login');
     }
@@ -37,7 +36,7 @@ const Layout = ({ children }) => {
           <div className="flex items-center">
             <Link href="/">
               <a className="flex items-center">
-                {/* Replace with your actual logo or company name */}
+                {/* Use text instead of logo image */}
                 <span className="text-blue-600 font-bold text-xl">Mountain Care HR</span>
               </a>
             </Link>
@@ -64,37 +63,72 @@ const Layout = ({ children }) => {
         <div className="w-64 bg-white shadow-md min-h-screen">
           <nav className="mt-5 px-2">
             <Link href="/">
-              <a className="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+              <a className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname === '/' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
                 Dashboard
               </a>
             </Link>
             <Link href="/employees">
-              <a className="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/employees') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
                 Employees
               </a>
             </Link>
             <Link href="/attendance">
-              <a className="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/attendance') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
                 Attendance
               </a>
             </Link>
             <Link href="/leave">
-              <a className="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/leave') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
                 Leave
               </a>
             </Link>
             <Link href="/compliance">
-              <a className="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/compliance') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
                 Compliance
               </a>
             </Link>
             <Link href="/documents">
-              <a className="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/documents') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
                 Documents
               </a>
             </Link>
+            <Link href="/onboarding">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/onboarding') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
+                Onboarding
+              </a>
+            </Link>
+            <Link href="/offboarding">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/offboarding') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
+                Offboarding
+              </a>
+            </Link>
+            <Link href="/reports">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/reports') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
+                Reports
+              </a>
+            </Link>
             <Link href="/settings">
-              <a className="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+              <a className={`mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                router.pathname.startsWith('/settings') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}>
                 Settings
               </a>
             </Link>
