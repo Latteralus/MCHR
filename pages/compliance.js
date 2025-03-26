@@ -24,10 +24,13 @@ export default function CompliancePage() {
   const [editingId, setEditingId] = useState(null);
   const [filter, setFilter] = useState('all'); // 'all', 'valid', 'expiring', 'expired'
 
+  // Only calculate isAdmin if session exists
   const isAdmin = session?.user?.role === 'admin' || session?.user?.role === 'hr_manager';
 
   useEffect(() => {
+    // Only proceed with data fetching if session is loaded and user is authenticated
     if (status === 'loading') return;
+    
     if (!session) {
       router.push('/login');
       return;
@@ -40,7 +43,7 @@ export default function CompliancePage() {
     if (isAdmin) {
       fetchEmployees();
     }
-  }, [session, status, filter]);
+  }, [session, status, filter, isAdmin, router]);
 
   const fetchComplianceRecords = async () => {
     try {
@@ -168,6 +171,22 @@ export default function CompliancePage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  // If loading session, show simple loading indicator
+  if (status === 'loading') {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-500">Loading session...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  // If no session and not loading, redirect is handled in useEffect
+  if (!session && status !== 'loading') {
+    return null;
+  }
 
   return (
     <Layout>

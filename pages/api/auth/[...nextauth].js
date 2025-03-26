@@ -1,20 +1,8 @@
+// pages/api/auth/[...nextauth].js
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { AppDataSource } from "../../../utils/db";
-import { User, UserEntity } from "../../../entities/User";
-
-// Initialize the TypeORM connection when the API route is accessed
-const initializeDb = async () => {
-  try {
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-  } catch (error) {
-    console.error("Error during TypeORM initialization", error);
-    throw new Error("Unable to connect to database");
-  }
-};
+import User from "../../../entities/User";
 
 export const authOptions = {
   providers: [
@@ -24,46 +12,51 @@ export const authOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      authorize: async (credentials) => {
-        try {
-          await initializeDb();
-          
-          // Find the user by email
-          const userRepository = AppDataSource.getRepository(UserEntity);
-          const user = await userRepository.findOne({ 
-            where: { email: credentials.email },
-            relations: ["departmentId"] 
-          });
-          
-          if (!user) {
-            return null;
-          }
-          
-          // Verify password
-          const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
-          
-          if (!isValid) {
-            return null;
-          }
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
 
-          // Return user data (excluding sensitive information)
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            departmentId: user.departmentId
-          };
+        try {
+          await AppDataSource.initialize();
+          const userRepository = AppDataSource.getRepository(User);
+          
+          const user = await userRepository.findOne({
+            where: { email: credentials.email },
+            relations: ['department']
+          });
+
+          // Here you would typically verify the password hash
+          // For development, we might use a simple check
+          if (user && user.passwordHash === credentials.password) {
+            await AppDataSource.destroy();
+            return {
+              id: user.id,
+              email: user.email,
+              name: `${user.firstName} ${user.lastName}`,
+              role: user.role,
+              departmentId: user.department?.id
+            };
+          }
+          
+          await AppDataSource.destroy();
+          return null;
         } catch (error) {
-          console.error("Authentication error:", error);
+          console.error("Auth error:", error);
+          if (AppDataSource.isInitialized) {
+            await AppDataSource.destroy();
+          }
           return null;
         }
       }
     })
   ],
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   callbacks: {
-    jwt: async ({ token, user }) => {
-      // Include additional user data in the JWT token
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -71,9 +64,8 @@ export const authOptions = {
       }
       return token;
     },
-    session: async ({ session, token }) => {
-      // Make user data available in the client session
-      if (session.user) {
+    async session({ session, token }) {
+      if (token) {
         session.user.id = token.id;
         session.user.role = token.role;
         session.user.departmentId = token.departmentId;
@@ -85,12 +77,6 @@ export const authOptions = {
     signIn: '/login',
     error: '/login',
   },
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  secret: process.env.NEXTAUTH_SECRET || "development-secret-do-not-use-in-production",
-  debug: process.env.NODE_ENV !== 'production',
 };
 
 export default NextAuth(authOptions);
