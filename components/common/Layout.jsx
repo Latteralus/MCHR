@@ -42,12 +42,6 @@ const Layout = ({ children }) => {
     return null;
   }
 
-  // Handle signout
-  const handleSignOut = async () => {
-    await signOut({ redirect: false });
-    router.push('/login');
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <Head>
@@ -58,42 +52,12 @@ const Layout = ({ children }) => {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
 
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <Link href="/" legacyBehavior>
-              <a className="text-primary font-bold text-xl">Mountain Care HR</a>
-            </Link>
-          </div>
-          
-          <div className="flex items-center">
-            {session && (
-              <div className="flex items-center">
-                <span className="mr-4 text-sm text-gray-700">
-                  {session.user.name || session.user.email}
-                </span>
-                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
-                  {/* Display initials if no avatar */}
-                  {session.user.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-                <button 
-                  onClick={handleSignOut}
-                  className="ml-4 text-sm text-gray-600 hover:text-gray-900"
-                >
-                  Sign out
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
       <div className="flex flex-1">
         {/* Sidebar Component */}
         <Sidebar isActive={sidebarActive} />
 
         {/* Main content */}
-        <div className="main-content">
+        <div className="main-content flex-1">
           <main className="p-6">{children}</main>
         </div>
       </div>
