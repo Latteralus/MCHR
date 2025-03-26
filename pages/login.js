@@ -2,10 +2,14 @@
 import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
+import styles from '../styles/Login.module.css';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: ''
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -18,11 +22,19 @@ export default function Login() {
     }
   }, [session, router]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCredentials({
+      ...credentials,
+      [name]: value
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      setError('Please enter both email and password');
+    if (!credentials.email || !credentials.password) {
+      setError('Please enter both username/email and password');
       return;
     }
     
@@ -31,8 +43,7 @@ export default function Login() {
       setError('');
       
       // For testing, allow hardcoded user
-      // In production, this would validate against the database
-      if (email === 'FCalkins' && password === 'password') {
+      if (credentials.email === 'FCalkins' && credentials.password === 'password') {
         // Use hardcoded credentials with NextAuth
         const result = await signIn('credentials', {
           redirect: false,
@@ -49,8 +60,8 @@ export default function Login() {
         // Regular authentication flow
         const result = await signIn('credentials', {
           redirect: false,
-          email,
-          password
+          email: credentials.email,
+          password: credentials.password
         });
         
         if (result.error) {
@@ -70,8 +81,9 @@ export default function Login() {
   // If still checking authentication, show loading
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-gray-600">Loading...</p>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -82,74 +94,78 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Mountain Care HR Platform
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to access your dashboard
-          </p>
-          {/* Display test credentials for testing */}
-          <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-sm text-blue-800 text-center">
-              Test with: Username: FCalkins | Password: password
-            </p>
-          </div>
+    <div className={styles.container}>
+      <Head>
+        <title>Login | Mountain Care HR Platform</title>
+        <meta name="description" content="Login to access Mountain Care HR Platform" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <div className={styles.loginCard}>
+        <div className={styles.logoContainer}>
+          <h1 className={styles.title}>Mountain Care HR Platform</h1>
         </div>
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-            {error}
+        
+        <div className={styles.formContainer}>
+          <h2 className={styles.subtitle}>Sign in to access your dashboard</h2>
+          
+          {error && (
+            <div className={styles.errorMessage}>
+              {error}
+            </div>
+          )}
+          
+          <div className={styles.testCredentials}>
+            <p>Test with: Username: FCalkins | Password: password</p>
           </div>
-        )}
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">Username or Email</label>
+          
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label htmlFor="email" className={styles.formLabel}>Username or Email</label>
               <input
                 id="email"
                 name="email"
                 type="text"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                value={credentials.email}
+                onChange={handleChange}
+                className={styles.formControl}
                 placeholder="Username or Email"
+                required
               />
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="password" className={styles.formLabel}>Password</label>
               <input
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                value={credentials.password}
+                onChange={handleChange}
+                className={styles.formControl}
                 placeholder="Password"
+                required
               />
             </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
+            
+            <button 
+              type="submit" 
+              className={styles.button}
               disabled={isLoading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                isLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
             >
               {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
-          </div>
-        </form>
+            
+            <div className={styles.forgotPassword}>
+              <a href="#">Forgot password?</a>
+            </div>
+          </form>
+        </div>
       </div>
+      
+      <footer className={styles.footer}>
+        <p>&copy; {new Date().getFullYear()} Mountain Care. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
