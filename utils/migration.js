@@ -31,7 +31,7 @@ const initializeDb = async () => {
 };
 
 // Generate a migration
-export const generateMigration = async (name: string) => {
+export const generateMigration = async (name) => {
   const migrationsDir = ensureMigrationsDir();
   const dataSource = await initializeDb();
 

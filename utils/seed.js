@@ -78,7 +78,7 @@ const seedUsers = async () => {
     email: "admin@mountaincare.com",
     passwordHash: adminPasswordHash,
     role: UserRole.ADMIN,
-    department: departments.find(d => d.name === "Information Technology")
+    departmentId: departments.find(d => d.name === "Information Technology")?.id
   });
   
   await userRepository.save(admin);
@@ -90,7 +90,7 @@ const seedUsers = async () => {
     email: "faith@mountaincare.com",
     passwordHash: hrPasswordHash,
     role: UserRole.HR_MANAGER,
-    department: departments.find(d => d.name === "Human Resources")
+    departmentId: departments.find(d => d.name === "Human Resources")?.id
   });
   
   await userRepository.save(hrManager);
@@ -104,7 +104,7 @@ const seedUsers = async () => {
         email: `manager.${dept.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@mountaincare.com`,
         passwordHash: managerPasswordHash,
         role: UserRole.DEPARTMENT_HEAD,
-        department: dept
+        departmentId: dept.id
       });
       
       await userRepository.save(deptHead);
@@ -124,7 +124,7 @@ const seedUsers = async () => {
       email: `employee${i}@mountaincare.com`,
       passwordHash: employeePasswordHash,
       role: UserRole.EMPLOYEE,
-      department: department
+      departmentId: department.id
     });
     
     await userRepository.save(employee);
@@ -147,7 +147,7 @@ const seedEmployees = async () => {
   }
   
   // Get all users and departments
-  const users = await userRepository.find({ relations: ["department"] });
+  const users = await userRepository.find();
   const departments = await departmentRepository.find();
   
   // Create an employee record for each user
@@ -156,6 +156,10 @@ const seedEmployees = async () => {
     if (user.role === UserRole.ADMIN) {
       continue;
     }
+    
+    // Find department for this user
+    const department = departments.find(d => d.id === user.departmentId);
+    if (!department) continue;
     
     // Generate a hire date between 1-5 years ago
     const yearsAgo = Math.floor(Math.random() * 5) + 1;
@@ -166,7 +170,7 @@ const seedEmployees = async () => {
     if (user.role === UserRole.HR_MANAGER) {
       position = "HR Director";
     } else if (user.role === UserRole.DEPARTMENT_HEAD) {
-      position = `${user.department?.name} Manager`;
+      position = `${department.name} Manager`;
     }
     
     // Create employee
@@ -184,8 +188,7 @@ const seedEmployees = async () => {
       employmentType: EmploymentType.FULL_TIME,
       position,
       salary: position.includes("Manager") ? 85000 + Math.random() * 40000 : 50000 + Math.random() * 30000,
-      department: user.department,
-      departmentId: user.department?.id
+      departmentId: department.id
     });
     
     await employeeRepository.save(employee);
@@ -222,3 +225,5 @@ if (require.main === module) {
     process.exit(1);
   });
 }
+
+export default runSeed;
