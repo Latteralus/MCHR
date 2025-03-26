@@ -60,7 +60,7 @@ export default function Dashboard() {
               Offboarding
             </Link>
             <Link href="/reports" className="menu-item">
-              <i className="fas fa-cog"></i>
+              <i className="fas fa-chart-bar"></i>
               Reports
             </Link>
             <Link href="/settings" className="menu-item">
