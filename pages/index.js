@@ -43,6 +43,14 @@ export default function Dashboard() {
               <i className="fas fa-calendar-check"></i>
               Leave Management
             </Link>
+            <Link href="/compliance" className="menu-item">
+              <i className="fas fa-shield-alt"></i>
+              Compliance
+            </Link>
+            <Link href="/documents" className="menu-item">
+              <i className="fas fa-file-alt"></i>
+              Documents
+            </Link>
             <Link href="/onboarding" className="menu-item">
               <i className="fas fa-clipboard-list"></i>
               Onboarding
@@ -51,13 +59,9 @@ export default function Dashboard() {
               <i className="fas fa-user-minus"></i>
               Offboarding
             </Link>
-            <Link href="/compliance" className="menu-item">
-              <i className="fas fa-shield-alt"></i>
-              Compliance
-            </Link>
-            <Link href="/documents" className="menu-item">
-              <i className="fas fa-file-alt"></i>
-              Documents
+            <Link href="/reports" className="menu-item">
+              <i className="fas fa-cog"></i>
+              Reports
             </Link>
             <Link href="/settings" className="menu-item">
               <i className="fas fa-cog"></i>

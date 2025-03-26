@@ -41,7 +41,7 @@ const Sidebar = ({ isActive }) => {
         <Link href="/leave" legacyBehavior>
           <a className={`menu-item ${router.pathname.startsWith('/leave') ? 'active' : ''}`}>
             <i className="fas fa-calendar-check"></i>
-            Leave
+            Leave Management
           </a>
         </Link>
         <Link href="/compliance" legacyBehavior>
