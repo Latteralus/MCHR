@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Header from './Header';
 import Sidebar from './Sidebar';
 
 const ModularLayout = ({ children }) => {
