@@ -30,7 +30,7 @@ export default function LeavePage() {
     {
       id: 1,
       employee: 'Sarah Johnson',
-      department: 'Nursing',
+      department: 'Pharmacy',
       type: 'Sick Leave',
       startDate: '2025-04-01',
       endDate: '2025-04-03',
@@ -50,7 +50,7 @@ export default function LeavePage() {
     {
       id: 3,
       employee: 'David Wilson',
-      department: 'Radiology',
+      department: 'Wellness',
       type: 'Personal',
       startDate: '2025-04-10',
       endDate: '2025-04-10',
@@ -60,7 +60,7 @@ export default function LeavePage() {
     {
       id: 4,
       employee: 'Lisa Rodriguez',
-      department: 'Pediatrics',
+      department: 'CRM',
       type: 'Sick Leave',
       startDate: '2025-04-05',
       endDate: '2025-04-06',
