@@ -8,8 +8,10 @@
       "start": "next start",
       "lint": "next lint",
       "typeorm": "typeorm-ts-node-commonjs",
-      "migration:generate": "npm run typeorm migration:generate -- -d ./ormconfig.ts",
-      "migration:run": "npm run typeorm migration:run -- -d ./ormconfig.ts"
+      "migration:generate": "ts-node utils/migration.ts generate",
+      "migration:run": "ts-node utils/migration.ts run",
+      "migration:revert": "ts-node utils/migration.ts revert",
+      "db:seed": "ts-node utils/seed.ts"
     },
     "dependencies": {
       "next": "^14.1.0",
@@ -42,4 +44,3 @@
       "prettier": "^3.0.3"
     }
   }
-  
