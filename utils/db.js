@@ -59,6 +59,12 @@ const db = {
     const userRepository = dataSource.getRepository(UserEntity);
     return userRepository.findOneBy({ email });
   },
+  
+  async getUserByUsername(username) {
+    const dataSource = await ensureDbConnected();
+    const userRepository = dataSource.getRepository(UserEntity);
+    return userRepository.findOneBy({ username });
+  },
 
   async createUser(userData) {
     const dataSource = await ensureDbConnected();

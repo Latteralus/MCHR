@@ -11,6 +11,7 @@ export const UserRole = {
 // Class definition for IntelliSense/typing
 export class User {
   id;
+  username;
   firstName;
   lastName;
   email;
@@ -36,6 +37,12 @@ export const UserEntity = new EntitySchema({
       primary: true,
       type: "uuid",
       generated: "uuid"
+    },
+    username: {
+      type: "varchar",
+      length: 50,
+      unique: true,
+      nullable: true // Allow null during migration period
     },
     firstName: {
       type: "varchar",
@@ -100,6 +107,10 @@ export const UserEntity = new EntitySchema({
     {
       name: "IDX_USER_EMAIL",
       columns: ["email"]
+    },
+    {
+      name: "IDX_USER_USERNAME",
+      columns: ["username"]
     },
     {
       name: "IDX_USER_DEPARTMENT",

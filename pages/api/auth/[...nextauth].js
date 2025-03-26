@@ -10,17 +10,18 @@ export default NextAuth({
       id: 'credentials',
       name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
         try {
           // Special case for testing - hardcoded test user
-          if (credentials.email === 'fcalkins@mountaincare.example' && credentials.password === 'password') {
+          if (credentials.username === 'fcalkins' && credentials.password === 'password') {
             return {
               id: '1',
               name: 'Faith Calkins',
               email: 'fcalkins@mountaincare.example',
+              username: 'fcalkins',
               role: 'Admin',
               department: 'Human Resources',
               departmentId: '1'
@@ -28,7 +29,7 @@ export default NextAuth({
           }
           
           // Get user from database
-          const user = await dbService.getUserByEmail(credentials.email);
+          const user = await dbService.getUserByUsername(credentials.username);
           
           // If user doesn't exist, return null
           if (!user) {
@@ -54,6 +55,7 @@ export default NextAuth({
             id: user.id,
             name: `${user.firstName} ${user.lastName}`,
             email: user.email,
+            username: user.username,
             role: user.role,
             departmentId: user.departmentId,
             department: departmentName
@@ -70,6 +72,7 @@ export default NextAuth({
       // First time JWT callback is called, user object is available
       if (user) {
         token.id = user.id;
+        token.username = user.username;
         token.role = user.role;
         token.department = user.department;
         token.departmentId = user.departmentId;
@@ -79,6 +82,7 @@ export default NextAuth({
     async session({ session, token }) {
       // Add properties to session from token
       session.user.id = token.id;
+      session.user.username = token.username;
       session.user.role = token.role;
       session.user.department = token.department;
       session.user.departmentId = token.departmentId;

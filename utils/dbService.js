@@ -46,6 +46,19 @@ export const dbService = {
     }
     return realDb.getUserByEmail(email);
   },
+  
+  /**
+   * Get user by username
+   * @param {string} username - Username
+   * @returns {Promise<object|null>} User object or null if not found
+   */
+  getUserByUsername: async (username) => {
+    if (USE_MOCK_DB) {
+      const users = await mockDb.findAll('users', { username });
+      return users[0] || null;
+    }
+    return realDb.getUserByUsername ? realDb.getUserByUsername(username) : null;
+  },
 
   /**
    * Get user by ID
@@ -440,7 +453,6 @@ export const dbService = {
     }
     return realDb.getComplianceRecords(options);
   },
-
   /**
    * Get compliance by employee ID
    * @param {string} employeeId - Employee ID

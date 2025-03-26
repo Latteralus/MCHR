@@ -6,6 +6,7 @@ const initialData = {
   users: [
     {
       id: '1',
+      username: 'fcalkins',
       email: 'fcalkins@mountaincare.example',
       firstName: 'Faith',
       lastName: 'Calkins',
@@ -17,6 +18,7 @@ const initialData = {
     },
     {
       id: '2',
+      username: 'jharper',
       email: 'jharper@mountaincare.example',
       firstName: 'James',
       lastName: 'Harper',
@@ -28,6 +30,7 @@ const initialData = {
     },
     {
       id: '3',
+      username: 'mfuentes',
       email: 'mfuentes@mountaincare.example',
       firstName: 'Maria',
       lastName: 'Fuentes',
@@ -36,6 +39,18 @@ const initialData = {
       departmentId: '3', // Operations
       createdAt: '2023-01-17T10:15:00.000Z',
       updatedAt: '2023-01-17T10:15:00.000Z'
+    },
+    {
+      id: '4',
+      username: 'admin',
+      email: 'admin@mountaincare.example',
+      firstName: 'System',
+      lastName: 'Administrator',
+      passwordHash: '$2a$10$YgVzXa13OVWe6JlFV6TP8.M5WnGGgpRXQZcMhXAUa7cmRSVFRSjPi', // hash for 'password'
+      role: 'SuperAdmin',
+      departmentId: null,
+      createdAt: '2023-01-01T00:00:00.000Z',
+      updatedAt: '2023-01-01T00:00:00.000Z'
     }
   ],
   employees: [
@@ -305,7 +320,7 @@ let data = cloneData(initialData);
 
 // Track the next ID for each entity (for auto-increment)
 const nextIds = {
-  users: 4,
+  users: 5,  // Updated since we added the admin user
   employees: 4,
   departments: 4,
   attendance: 6,
@@ -331,138 +346,138 @@ const matchesFilter = (item, filter = {}) => {
     
     // Handle nested paths like 'emergencyContact.name'
     if (key.includes('.')) {
-      const parts = key.split('.');
-      let value = item;
-      for (const part of parts) {
-        if (!value || value[part] === undefined) {
-          return false;
+        const parts = key.split('.');
+        let value = item;
+        for (const part of parts) {
+          if (!value || value[part] === undefined) {
+            return false;
+          }
+          value = value[part];
         }
-        value = value[part];
+        return value === filter[key];
       }
-      return value === filter[key];
-    }
-    
-    return item[key] === filter[key];
-  });
-};
-
-// Mock database implementation
-export const mockDb = {
-  // Reset to initial data (for testing)
-  reset: () => {
-    data = cloneData(initialData);
-    Object.keys(nextIds).forEach(key => {
-      nextIds[key] = Math.max(...data[key].map(item => parseInt(item.id))) + 1;
-    });
-    return true;
-  },
-  
-  // Generic CRUD operations
-  findAll: async (entity, filter = {}) => {
-    if (!data[entity]) {
-      throw new Error(`Entity '${entity}' not found in mock database`);
-    }
-    
-    // Apply filters if provided
-    if (Object.keys(filter).length > 0) {
-      return data[entity].filter(item => matchesFilter(item, filter));
-    }
-    
-    return data[entity];
-  },
-  
-  findById: async (entity, id) => {
-    if (!data[entity]) {
-      throw new Error(`Entity '${entity}' not found in mock database`);
-    }
-    
-    return data[entity].find(item => item.id === id) || null;
-  },
-  
-  create: async (entity, itemData) => {
-    if (!data[entity]) {
-      throw new Error(`Entity '${entity}' not found in mock database`);
-    }
-    
-    const now = new Date().toISOString();
-    const newItem = {
-      ...itemData,
-      id: generateId(entity),
-      createdAt: itemData.createdAt || now,
-      updatedAt: itemData.updatedAt || now
-    };
-    
-    // Special cases for password hashing
-    if (entity === 'users' && itemData.password && !itemData.passwordHash) {
-      newItem.passwordHash = bcrypt.hashSync(itemData.password, 10);
-      delete newItem.password;
-    }
-    
-    data[entity].push(newItem);
-    return newItem;
-  },
-  
-  update: async (entity, id, itemData) => {
-    if (!data[entity]) {
-      throw new Error(`Entity '${entity}' not found in mock database`);
-    }
-    
-    const index = data[entity].findIndex(item => item.id === id);
-    if (index === -1) {
-      throw new Error(`Item with id '${id}' not found in ${entity}`);
-    }
-    
-    // Special case for password updates
-    if (entity === 'users' && itemData.password) {
-      itemData.passwordHash = bcrypt.hashSync(itemData.password, 10);
-      delete itemData.password;
-    }
-    
-    const updatedItem = {
-      ...data[entity][index],
-      ...itemData,
-      id, // Ensure ID cannot be changed
-      updatedAt: itemData.updatedAt || new Date().toISOString()
-    };
-    
-    data[entity][index] = updatedItem;
-    return updatedItem;
-  },
-  
-  remove: async (entity, id) => {
-    if (!data[entity]) {
-      throw new Error(`Entity '${entity}' not found in mock database`);
-    }
-    
-    const index = data[entity].findIndex(item => item.id === id);
-    if (index === -1) {
-      return false;
-    }
-    
-    data[entity].splice(index, 1);
-    return true;
-  },
-  
-  // Transaction support (simplified for mock)
-  transaction: async (callback) => {
-    // Create a backup of the current data state
-    const backupData = cloneData(data);
-    
-    try {
-      // Execute the callback with a transaction object
-      const result = await callback({
-        findAll: mockDb.findAll,
-        findById: mockDb.findById,
-        create: mockDb.create,
-        update: mockDb.update,
-        remove: mockDb.remove
-      });
       
-      return result;
-    } catch (error) {
-      // Rollback on error
-      data = backupData;
-      throw error;
+      return item[key] === filter[key];
+    });
+  };
+  
+  // Mock database implementation
+  export const mockDb = {
+    // Reset to initial data (for testing)
+    reset: () => {
+      data = cloneData(initialData);
+      Object.keys(nextIds).forEach(key => {
+        nextIds[key] = Math.max(...data[key].map(item => parseInt(item.id))) + 1;
+      });
+      return true;
+    },
+    
+    // Generic CRUD operations
+    findAll: async (entity, filter = {}) => {
+      if (!data[entity]) {
+        throw new Error(`Entity '${entity}' not found in mock database`);
+      }
+      
+      // Apply filters if provided
+      if (Object.keys(filter).length > 0) {
+        return data[entity].filter(item => matchesFilter(item, filter));
+      }
+      
+      return data[entity];
+    },
+    
+    findById: async (entity, id) => {
+      if (!data[entity]) {
+        throw new Error(`Entity '${entity}' not found in mock database`);
+      }
+      
+      return data[entity].find(item => item.id === id) || null;
+    },
+    
+    create: async (entity, itemData) => {
+      if (!data[entity]) {
+        throw new Error(`Entity '${entity}' not found in mock database`);
+      }
+      
+      const now = new Date().toISOString();
+      const newItem = {
+        ...itemData,
+        id: generateId(entity),
+        createdAt: itemData.createdAt || now,
+        updatedAt: itemData.updatedAt || now
+      };
+      
+      // Special cases for password hashing
+      if (entity === 'users' && itemData.password && !itemData.passwordHash) {
+        newItem.passwordHash = bcrypt.hashSync(itemData.password, 10);
+        delete newItem.password;
+      }
+      
+      data[entity].push(newItem);
+      return newItem;
+    },
+    
+    update: async (entity, id, itemData) => {
+      if (!data[entity]) {
+        throw new Error(`Entity '${entity}' not found in mock database`);
+      }
+      
+      const index = data[entity].findIndex(item => item.id === id);
+      if (index === -1) {
+        throw new Error(`Item with id '${id}' not found in ${entity}`);
+      }
+      
+      // Special case for password updates
+      if (entity === 'users' && itemData.password) {
+        itemData.passwordHash = bcrypt.hashSync(itemData.password, 10);
+        delete itemData.password;
+      }
+      
+      const updatedItem = {
+        ...data[entity][index],
+        ...itemData,
+        id, // Ensure ID cannot be changed
+        updatedAt: itemData.updatedAt || new Date().toISOString()
+      };
+      
+      data[entity][index] = updatedItem;
+      return updatedItem;
+    },
+    
+    remove: async (entity, id) => {
+      if (!data[entity]) {
+        throw new Error(`Entity '${entity}' not found in mock database`);
+      }
+      
+      const index = data[entity].findIndex(item => item.id === id);
+      if (index === -1) {
+        return false;
+      }
+      
+      data[entity].splice(index, 1);
+      return true;
+    },
+    
+    // Transaction support (simplified for mock)
+    transaction: async (callback) => {
+      // Create a backup of the current data state
+      const backupData = cloneData(data);
+      
+      try {
+        // Execute the callback with a transaction object
+        const result = await callback({
+          findAll: mockDb.findAll,
+          findById: mockDb.findById,
+          create: mockDb.create,
+          update: mockDb.update,
+          remove: mockDb.remove
+        });
+        
+        return result;
+      } catch (error) {
+        // Rollback on error
+        data = backupData;
+        throw error;
+      }
     }
-  }
-};
+  };

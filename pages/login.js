@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   const [error, setError] = useState('');
@@ -22,7 +22,7 @@ export default function Login() {
     if (router.query.error) {
       setError(
         router.query.error === 'CredentialsSignin' 
-          ? 'Invalid email or password'
+          ? 'Invalid username or password'
           : 'Authentication failed. Please try again.'
       );
     }
@@ -46,8 +46,8 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!credentials.email || !credentials.password) {
-      setError('Please enter both email and password');
+    if (!credentials.username || !credentials.password) {
+      setError('Please enter both username and password');
       return;
     }
     
@@ -58,14 +58,14 @@ export default function Login() {
       // Send authentication request to NextAuth
       const result = await signIn('credentials', {
         redirect: false,
-        email: credentials.email,
+        username: credentials.username,
         password: credentials.password
       });
       
       if (result.error) {
         setError(
           result.error === 'CredentialsSignin' 
-            ? 'Invalid email or password'
+            ? 'Invalid username or password'
             : result.error || 'Authentication failed. Please check your credentials.'
         );
         console.error('Auth error:', result);
@@ -120,23 +120,23 @@ export default function Login() {
           )}
           
           <div className={styles.testCredentials}>
-            <p>Test with: admin@mountaincare.com | admin123</p>
-            <p>or: faith@mountaincare.com | hr123</p>
+            <p>Test with: admin | admin123</p>
+            <p>or: fcalkins | hr123</p>
           </div>
           
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.formLabel}>Email</label>
+              <label htmlFor="username" className={styles.formLabel}>Username</label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                value={credentials.email}
+                id="username"
+                name="username"
+                type="text"
+                value={credentials.username}
                 onChange={handleChange}
                 className={styles.formControl}
-                placeholder="your.email@mountaincare.com"
+                placeholder="Your username"
                 required
-                autoComplete="email"
+                autoComplete="username"
               />
             </div>
             
