@@ -15,13 +15,13 @@ This document outlines a comprehensive, step-by-step plan for developing the Mou
 - [x] Initialize Next.js project
 - [x] Configure package.json with required dependencies
 - [x] Set up global styling (globals.css)
-- [ ] Create .env.local file with required environment variables:
+- [x] Create .env.local file with required environment variables:
   ```
   DATABASE_URL=postgresql://username:password@localhost:5432/mountain_care
   NEXTAUTH_SECRET=<generate-secure-random-string>
   NEXTAUTH_URL=http://localhost:3000
   ```
-- [ ] Update next.config.js with additional configuration if needed
+- [x] Update next.config.js with additional configuration if needed
 
 ### 1.2 Database Setup
 - [ ] Set up PostgreSQL database locally
@@ -40,7 +40,7 @@ This document outlines a comprehensive, step-by-step plan for developing the Mou
     ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
   });
   ```
-- [ ] Create database migration helper script in utils/db.ts
+- [x] Create database migration helper script in utils/db.ts
 
 ### 1.3 Authentication System
 - [x] Implement NextAuth.js configuration in pages/api/auth/[...nextauth].js
