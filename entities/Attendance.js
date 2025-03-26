@@ -1,46 +1,32 @@
-import { EntitySchema } from "typeorm";
+// entities/Attendance.js
+const { EntitySchema } = require("typeorm");
 
-// Enum for attendance status
-export const AttendanceStatus = {
-  PRESENT: "present",
-  ABSENT: "absent",
-  TARDY: "tardy",
-  HALF_DAY: "half_day",
-  ON_LEAVE: "on_leave",
-  HOLIDAY: "holiday",
-  WEEKEND: "weekend"
-};
-
-// Class definition for IntelliSense/typing
-export class Attendance {
-  id;
-  date;
-  timeIn;
-  timeOut;
-  status;
-  hoursWorked;
-  notes;
-  employee;
-  employeeId;
-  createdAt;
-  updatedAt;
-  recordedById;
-  isRemoteWork;
-  isOvertime;
-  ipAddress;
-  deviceInfo;
+class Attendance {
+  constructor() {
+    this.id = undefined;
+    this.employeeId = undefined;
+    this.employee = undefined;
+    this.date = undefined;
+    this.timeIn = undefined;
+    this.timeOut = undefined;
+    this.status = undefined;
+    this.notes = undefined;
+    this.createdAt = undefined;
+    this.updatedAt = undefined;
+  }
 }
 
-// Entity Schema definition for TypeORM
-export const AttendanceEntity = new EntitySchema({
+module.exports.Attendance = new EntitySchema({
   name: "Attendance",
   target: Attendance,
-  tableName: "attendance",
   columns: {
     id: {
       primary: true,
-      type: "uuid",
-      generated: "uuid"
+      type: "int",
+      generated: true
+    },
+    employeeId: {
+      type: "int"
     },
     date: {
       type: "date"
@@ -54,22 +40,12 @@ export const AttendanceEntity = new EntitySchema({
       nullable: true
     },
     status: {
-      type: "enum",
-      enum: Object.values(AttendanceStatus),
-      default: AttendanceStatus.PRESENT
-    },
-    hoursWorked: {
-      type: "decimal",
-      precision: 4,
-      scale: 2,
-      default: 0
+      type: "varchar",
+      default: "present"
     },
     notes: {
-      type: "varchar",
+      type: "text",
       nullable: true
-    },
-    employeeId: {
-      type: "uuid"
     },
     createdAt: {
       type: "timestamp",
@@ -78,37 +54,23 @@ export const AttendanceEntity = new EntitySchema({
     updatedAt: {
       type: "timestamp",
       updateDate: true
-    },
-    recordedById: {
-      type: "uuid",
-      nullable: true
-    },
-    isRemoteWork: {
-      type: "boolean",
-      default: false
-    },
-    isOvertime: {
-      type: "boolean",
-      default: false
-    },
-    ipAddress: {
-      type: "varchar",
-      nullable: true
-    },
-    deviceInfo: {
-      type: "varchar",
-      nullable: true
     }
   },
   relations: {
-    // Change from 'employee' to match property name in the class
-    employeeId: {
-      type: "many-to-one",
+    employee: {
       target: "Employee",
+      type: "many-to-one",
       joinColumn: {
         name: "employeeId"
       },
       onDelete: "CASCADE"
     }
-  }
+  },
+  indices: [
+    {
+      name: "attendance_employee_date",
+      columns: ["employeeId", "date"],
+      unique: true
+    }
+  ]
 });

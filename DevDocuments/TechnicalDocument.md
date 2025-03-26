@@ -87,91 +87,7 @@ Note: Onboarding/offboarding can have their own tables or be integrated into Emp
 - A backup every 8 hours is recommended. Tools like pg_dump or cloud provider snapshots can achieve this schedule.
 - Plan for point-in-time recovery if storing transaction logs.
 
-## 6. File & Directory Structure
-
-A typical Next.js + TypeORM structure, expanded for Mountain Care:
-
-```
-mountain-care/
-├── components/
-│   ├── common/
-│   │   ├── Layout.jsx               // General layout (header, sidebar)
-│   │   └── Navbar.jsx               // Top navigation bar
-│   ├── auth/
-│   │   └── AuthProvider.jsx         // React Context for session data
-│   ├── dashboard/
-│   │   ├── StatCard.jsx             // Reusable stats card
-│   │   └── DashboardGrid.jsx        // Dashboard layout
-│   ├── employee/
-│   │   ├── EmployeeList.jsx
-│   │   ├── EmployeeProfile.jsx
-│   │   └── EmployeeForm.jsx
-│   ├── attendance/
-│   │   └── AttendanceLog.jsx
-│   ├── leave/
-│   │   ├── LeaveRequestForm.jsx
-│   │   ├── LeaveList.jsx
-│   │   └── LeaveCalendar.jsx
-│   ├── compliance/
-│   │   └── ComplianceCard.jsx
-│   ├── onboarding/
-│   │   └── OnboardingChecklist.jsx
-│   └── documents/
-│       └── DocumentManager.jsx
-│
-├── pages/
-│   ├── api/
-│   │   ├── auth/
-│   │   │   └── [...nextauth].js     // NextAuth config
-│   │   ├── employees/
-│   │   │   ├── index.js             // GET, POST
-│   │   │   └── [id].js              // GET, PUT, DELETE
-│   │   ├── attendance.js
-│   │   ├── leave.js
-│   │   ├── onboarding.js
-│   │   ├── compliance.js
-│   │   └── documents.js
-│   │
-│   ├── _app.js                      // Global wrapper (includes AuthProvider, global CSS)
-│   ├── index.js                     // Dashboard homepage
-│   ├── login.js                     // Public login route
-│   ├── employees/
-│   │   ├── index.js                 // Employee management overview
-│   │   └── [id].js                  // Individual employee profile
-│   ├── attendance.js
-│   ├── leave.js
-│   ├── onboarding.js
-│   ├── compliance.js
-│   ├── documents.js
-│   ├── settings.js
-│   └── reports.js
-│
-├── entities/
-│   ├── User.js                      // TypeORM entity definitions using EntitySchema
-│   ├── Employee.js
-│   ├── Department.js
-│   ├── Attendance.js
-│   ├── Leave.js
-│   ├── Compliance.js
-│   └── Document.js
-├── utils/
-│   ├── db.js                        // Database connection utility
-│   ├── apiHandler.js                // API route wrapper with error handling
-│   ├── migration.js                 // Migration utility
-│   └── seed.js                      // Database seeding utility
-├── public/
-│   └── images/
-├── styles/
-│   ├── globals.css
-│   └── <module-specific>.module.css
-├── tsconfig.json                    // TypeScript configuration
-├── .env.local                       // Environment variables (not in repo)
-├── next.config.js
-├── package.json
-└── README.md                        // Setup and development instructions
-```
-
-## 7. Core Features & Modules
+## 6. Core Features & Modules
 
 Below is a more precise alignment with your clarifications:
 
@@ -223,7 +139,7 @@ Below is a more precise alignment with your clarifications:
 - System-level preferences (notifications, backup schedules).
 - Self-service for employees to update personal info; managers and HR staff have higher privileges.
 
-## 8. Environment Setup & Configuration
+## 7. Environment Setup & Configuration
 
 ### Required Variables (.env.local):
 
@@ -245,7 +161,7 @@ Below is a more precise alignment with your clarifications:
 - If using Vercel, environment variables can be set in project settings.
 - If using Docker or AWS, ensure the container or server can access the DB.
 
-## 9. Security & Access Control
+## 8. Security & Access Control
 
 ### HIPAA Compliance
 
@@ -269,7 +185,7 @@ Below is a more precise alignment with your clarifications:
 - NextAuth.js: Session tokens (JWT or database sessions).
 - Implement 2FA if required for compliance or sensitive operations.
 
-## 10. Deployment & Hosting Plans
+## 9. Deployment & Hosting Plans
 
 ### Vercel
 
@@ -289,7 +205,7 @@ Below is a more precise alignment with your clarifications:
 - If on GitHub, use GitHub Actions to run tests, lint, build, and migrations prior to deployment.
 - Migrations: Run using custom scripts or TypeORM CLI.
 
-## 11. Maintenance & Scalability
+## 10. Maintenance & Scalability
 
 ### Logging & Monitoring
 
@@ -317,7 +233,7 @@ Below is a more precise alignment with your clarifications:
 - Keep Node.js, Next.js, and TypeORM updated for security patches.
 - Regularly review logs and audits to ensure HIPAA and internal compliance.
 
-## 12. Troubleshooting & Edge Cases
+## 11. Troubleshooting & Edge Cases
 
 ### Concurrency & Transactions
 
@@ -339,7 +255,7 @@ Below is a more precise alignment with your clarifications:
 - Ensure queries filter by department for managers, or you risk data leaks.
 - Implemented middleware to verify user's department ID before returning data.
 
-## 13. Additional Considerations
+## 12. Additional Considerations
 
 ### Documentation:
 

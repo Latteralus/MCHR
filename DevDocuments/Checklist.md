@@ -4,7 +4,7 @@
 - [x] Initialize Next.js project
 - [x] Configure package.json with required dependencies
 - [x] Set up global styling (globals.css)
-- [ ] Create .env.local file with environment variables
+- [x] Create .env.local file with environment variables
 - [x] Configure next.config.js
 
 ## Database Setup
@@ -42,7 +42,9 @@
 - [x] Create departments API routes
   - [x] pages/api/departments/index.js (GET, POST)
   - [x] pages/api/departments/[id].js (GET, PUT, DELETE)
-- [ ] Create attendance API route
+- [x] Create attendance API route
+  - [x] pages/api/attendance/index.js (GET, POST)
+  - [x] pages/api/attendance/[id].js (GET, PUT, DELETE)
 - [ ] Create leave management API route
 - [ ] Create compliance API route
 - [ ] Create documents API route
@@ -59,11 +61,13 @@
 - [x] Create components/common/Layout.jsx
 
 ## Attendance & Leave Management
-- [ ] Create components/attendance/AttendanceLog.jsx
+- [x] Create components/attendance/AttendanceLog.jsx
+- [x] Create components/attendance/AttendanceCalendar.jsx
+- [x] Create pages/attendance.js
+- [x] Create pages/attendance/[id].js
 - [ ] Create components/leave/LeaveRequestForm.jsx
 - [ ] Create components/leave/LeaveList.jsx
 - [ ] Create components/leave/LeaveCalendar.jsx
-- [ ] Create pages/attendance.js
 - [ ] Create pages/leave.js
 
 ## Onboarding & Offboarding
@@ -124,17 +128,19 @@ We have completed the following:
 - Fixed relation property names in EntitySchema definitions to match column names
 - Login page creation and Authentication provider
 - Created database utilities for migrations and seeding
-- Implemented API routes for employee and department management with proper auth checks
+- Implemented API routes for employee, department, and attendance management with proper auth checks
 - Created Employee Management UI (list, profile, form components & pages)
+- Created Attendance Management UI (log, calendar components & pages)
 - Created shared Layout component
 - Fixed TypeScript configuration for Vercel deployment
+- Created .env.local template for local development
 
 ## Next Steps
 1. Set up PostgreSQL database locally
-2. Update the employees API routes to use the new EntitySchema definitions
-3. Generate and run the initial migration
-4. Implement attendance tracking module
-5. Implement leave management module
+2. Generate and run the initial migration
+3. Implement leave management module
+4. Implement compliance tracking module
+5. Implement document management system
 
 ### Blockers & Issues
 - *Add any blockers or issues as they arise*
