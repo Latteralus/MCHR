@@ -40,7 +40,7 @@
       "@types/bcryptjs": "^2.4.3",
       "eslint": "^8.48.0",
       "eslint-config-next": "^14.1.0",
-      "ts-node": "^11.1.2",
+      "ts-node": "^10.9.1",
       "prettier": "^3.0.3"
     }
   }
