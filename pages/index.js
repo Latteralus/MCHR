@@ -171,33 +171,33 @@ export default function Dashboard() {
                 </div>
                 <div className="card-body">
                   <div className="license-item">
-                    <div className="license-item-avatar">JK</div>
+                    <div className="license-item-avatar">EK</div>
                     <div className="license-item-info">
-                      <div className="license-item-name">James Kirk</div>
+                      <div className="license-item-name">Eathan Klore</div>
                       <div className="license-item-detail">Pharmacist License</div>
                     </div>
                     <div className="license-status status-danger">7 days</div>
                   </div>
                   <div className="license-item">
-                    <div className="license-item-avatar">LM</div>
+                    <div className="license-item-avatar">AE</div>
                     <div className="license-item-info">
-                      <div className="license-item-name">Leonard McCoy</div>
+                      <div className="license-item-name">Alice Edwards</div>
                       <div className="license-item-detail">Pharmacy Tech License</div>
                     </div>
                     <div className="license-status status-warning">14 days</div>
                   </div>
                   <div className="license-item">
-                    <div className="license-item-avatar">NU</div>
+                    <div className="license-item-avatar">JL</div>
                     <div className="license-item-info">
-                      <div className="license-item-name">Nyota Uhura</div>
+                      <div className="license-item-name">John Lumbridge</div>
                       <div className="license-item-detail">Controlled Substance License</div>
                     </div>
                     <div className="license-status status-warning">21 days</div>
                   </div>
                   <div className="license-item">
-                    <div className="license-item-avatar">WM</div>
+                    <div className="license-item-avatar">WS</div>
                     <div className="license-item-info">
-                      <div className="license-item-name">William Manager</div>
+                      <div className="license-item-name">William Sharpe</div>
                       <div className="license-item-detail">90 Day Review</div>
                     </div>
                     <div className="license-status status-warning">23 days</div>
