@@ -180,7 +180,8 @@ export const EmployeeEntity = new EntitySchema({
     }
   },
   relations: {
-    department: {
+    // Change relation property names to match column names
+    departmentId: {
       type: "many-to-one",
       target: "Department",
       joinColumn: {
@@ -188,7 +189,7 @@ export const EmployeeEntity = new EntitySchema({
       },
       nullable: true
     },
-    manager: {
+    managerId: {
       type: "many-to-one",
       target: "Employee",
       joinColumn: {
@@ -199,22 +200,22 @@ export const EmployeeEntity = new EntitySchema({
     attendanceRecords: {
       type: "one-to-many",
       target: "Attendance",
-      inverseSide: "employee"
+      inverseSide: "employeeId"
     },
     leaveRequests: {
       type: "one-to-many",
       target: "Leave",
-      inverseSide: "employee"
+      inverseSide: "employeeId"
     },
     complianceRecords: {
       type: "one-to-many",
       target: "Compliance",
-      inverseSide: "employee"
+      inverseSide: "employeeId"
     },
     documents: {
       type: "one-to-many",
       target: "Document",
-      inverseSide: "employee"
+      inverseSide: "employeeId"
     }
   }
 });

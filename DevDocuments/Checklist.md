@@ -11,6 +11,9 @@
 - [ ] Set up PostgreSQL database locally
 - [ ] Create ormconfig.ts with TypeORM configuration
 - [x] Create database utility in utils/db.js
+- [x] Create migration utility in utils/migration.ts
+- [x] Create seed utility in utils/seed.ts
+- [x] Update package.json with database scripts
 
 ## Authentication System
 - [x] Implement NextAuth.js configuration in pages/api/auth/[...nextauth].js
@@ -23,32 +26,37 @@
 ## Core Entity Models
 - [x] Define User entity
 - [x] Define Department entity
-- [ ] Define Employee entity
-- [ ] Define Attendance entity
-- [ ] Define Leave entity
-- [ ] Define Compliance entity
-- [ ] Define Document entity
-- [ ] Create TypeORM relationships between entities
+- [x] Define Employee entity
+- [x] Define Attendance entity
+- [x] Define Leave entity
+- [x] Define Compliance entity
+- [x] Define Document entity
+- [x] Create TypeORM relationships between entities
 - [ ] Generate initial migration
 
 ## API Routes Implementation
-- [ ] Create employees API routes
-  - [ ] pages/api/employees/index.js (GET, POST)
-  - [ ] pages/api/employees/[id].js (GET, PUT, DELETE)
-- [ ] Create departments API route
+- [x] Create API utility handlers in utils/apiHandler.ts
+- [x] Create employees API routes
+  - [x] pages/api/employees/index.js (GET, POST)
+  - [x] pages/api/employees/[id].js (GET, PUT, DELETE)
+- [x] Create departments API routes
+  - [x] pages/api/departments/index.js (GET, POST)
+  - [x] pages/api/departments/[id].js (GET, PUT, DELETE)
 - [ ] Create attendance API route
 - [ ] Create leave management API route
 - [ ] Create compliance API route
 - [ ] Create documents API route
-- [ ] Implement middleware for authentication and role-based access control
+- [x] Implement middleware for authentication and role-based access control
 
 ## Employee Management Module
-- [ ] Create components/employee/EmployeeList.jsx
-- [ ] Create components/employee/EmployeeProfile.jsx
-- [ ] Create components/employee/EmployeeForm.jsx
-- [ ] Create pages/employees/index.js
-- [ ] Create pages/employees/[id].js
-- [ ] Create pages/employees/new.js
+- [x] Create components/employee/EmployeeList.jsx
+- [x] Create components/employee/EmployeeProfile.jsx
+- [x] Create components/employee/EmployeeForm.jsx
+- [x] Create pages/employees/index.js
+- [x] Create pages/employees/[id].js
+- [x] Create pages/employees/new.js
+- [x] Create pages/employees/[id]/edit.js
+- [x] Create components/common/Layout.jsx
 
 ## Attendance & Leave Management
 - [ ] Create components/attendance/AttendanceLog.jsx
@@ -109,18 +117,24 @@
 
 ## Notes
 
-### Current Focus
-We have completed the initial authentication system setup, including:
-- NextAuth.js configuration
-- User and Department entities
-- Login page creation
-- Authentication provider for session management
+## Current Focus & Progress
+We have completed the following:
+- NextAuth.js configuration for authentication
+- Created all entity models with EntitySchema (compatible with TypeORM but without decorators)
+- Fixed relation property names in EntitySchema definitions to match column names
+- Login page creation and Authentication provider
+- Created database utilities for migrations and seeding
+- Implemented API routes for employee and department management with proper auth checks
+- Created Employee Management UI (list, profile, form components & pages)
+- Created shared Layout component
+- Fixed TypeScript configuration for Vercel deployment
 
-### Next Steps
-1. Complete the remaining entity models
-2. Set up the database and run the initial migration
-3. Implement the employee management API routes and UI components
-4. Continue with attendance and leave management modules
+## Next Steps
+1. Set up PostgreSQL database locally
+2. Update the employees API routes to use the new EntitySchema definitions
+3. Generate and run the initial migration
+4. Implement attendance tracking module
+5. Implement leave management module
 
 ### Blockers & Issues
 - *Add any blockers or issues as they arise*

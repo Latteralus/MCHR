@@ -48,7 +48,7 @@ export const DepartmentEntity = new EntitySchema({
     employees: {
       type: "one-to-many",
       target: "User",
-      inverseSide: "department"
+      inverseSide: "departmentId"
     }
   }
 });

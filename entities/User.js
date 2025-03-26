@@ -77,7 +77,8 @@ export const UserEntity = new EntitySchema({
     }
   },
   relations: {
-    department: {
+    // Change property name to match column name
+    departmentId: {
       type: "many-to-one",
       target: "Department",
       joinColumn: {

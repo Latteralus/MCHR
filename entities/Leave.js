@@ -117,7 +117,8 @@ export const LeaveEntity = new EntitySchema({
     }
   },
   relations: {
-    employee: {
+    // Change property name to match column name
+    employeeId: {
       type: "many-to-one",
       target: "Employee",
       joinColumn: {

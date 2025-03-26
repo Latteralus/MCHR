@@ -159,7 +159,8 @@ export const DocumentEntity = new EntitySchema({
     }
   },
   relations: {
-    employee: {
+    // Change property names to match column names
+    employeeId: {
       type: "many-to-one",
       target: "Employee",
       joinColumn: {
@@ -167,7 +168,7 @@ export const DocumentEntity = new EntitySchema({
       },
       nullable: true
     },
-    department: {
+    departmentId: {
       type: "many-to-one",
       target: "Department",
       joinColumn: {

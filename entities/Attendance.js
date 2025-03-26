@@ -101,7 +101,8 @@ export const AttendanceEntity = new EntitySchema({
     }
   },
   relations: {
-    employee: {
+    // Change from 'employee' to match property name in the class
+    employeeId: {
       type: "many-to-one",
       target: "Employee",
       joinColumn: {
