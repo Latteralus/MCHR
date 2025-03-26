@@ -29,7 +29,6 @@ export const dbService = {
     if (USE_MOCK_DB) {
       return mockDb.reset();
     }
-};
     return Promise.reject(new Error('Reset not available for production database'));
   },
 
@@ -635,3 +634,4 @@ export const dbService = {
     }
     return realDb.getDashboardStats();
   }
+}
