@@ -1,7 +1,9 @@
+import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Layout from '../components/common/Layout';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const [sidebarActive, setSidebarActive] = useState(false);

@@ -18,7 +18,7 @@ export default NextAuth({
             id: '1',
             name: 'Faith Calkins',
             email: 'fcalkins@mountaincare.example',
-            role: 'admin',
+            role: 'HR Director',
             department: 'Human Resources'
           };
         }
