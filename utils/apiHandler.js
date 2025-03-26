@@ -44,7 +44,17 @@ export const apiHandler = (
     // Authenticate request if required
     let session = null;
     if (requireAuth) {
-      session = await getServerSession(req, res, authOptions);
+      // Use try/catch as getServerSession might throw if parameters are incorrect
+      try {
+        // Pass the authOptions correctly - fix for NextAuth compatibility
+        session = await getServerSession(
+          req,
+          res,
+          authOptions
+        );
+      } catch (error) {
+        console.error("Authentication error:", error);
+      }
       
       if (!session) {
         return res.status(401).json({

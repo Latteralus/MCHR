@@ -32,7 +32,7 @@ export const authOptions = {
           const userRepository = AppDataSource.getRepository(UserEntity);
           const user = await userRepository.findOne({ 
             where: { email: credentials.email },
-            relations: ["department"] 
+            relations: ["departmentId"] 
           });
           
           if (!user) {
@@ -52,7 +52,7 @@ export const authOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
-            departmentId: user.department?.id
+            departmentId: user.departmentId
           };
         } catch (error) {
           console.error("Authentication error:", error);
@@ -73,9 +73,11 @@ export const authOptions = {
     },
     session: async ({ session, token }) => {
       // Make user data available in the client session
-      session.user.id = token.id;
-      session.user.role = token.role;
-      session.user.departmentId = token.departmentId;
+      if (session.user) {
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.departmentId = token.departmentId;
+      }
       return session;
     }
   },
@@ -87,7 +89,7 @@ export const authOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "development-secret-do-not-use-in-production",
   debug: process.env.NODE_ENV !== 'production',
 };
 

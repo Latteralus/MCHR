@@ -53,14 +53,14 @@ mountain-care/
 │   └── reports.js
 │
 ├── entities/
-│   ├── User.ts                      // TypeORM entity definitions
-│   ├── Employee.ts
-│   ├── Department.ts
-│   ├── Attendance.ts
-│   ├── Leave.ts
-│   ├── Compliance.ts
-│   └── Document.ts
-├── ormconfig.js (or .ts)            // TypeORM config for connection, migrations
+│   ├── User.js                      // TypeORM entity definitions
+│   ├── Employee.js
+│   ├── Department.js
+│   ├── Attendance.js
+│   ├── Leave.js
+│   ├── Compliance.js
+│   └── Document.js
+├── ormconfig.js            // TypeORM config for connection, migrations
 ├── migrations/
 │   └── <timestamp>-InitialSetup.ts  // Auto-generated or custom migrations
 ├── public/
