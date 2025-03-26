@@ -1,12 +1,21 @@
-import { apiHandler, throwApiError } from '../../../utils/apiHandler';
-import { AppDataSource } from '../../../utils/db';
-import { DepartmentEntity } from '../../../entities/Department';
+import { AppDataSource } from "../../../utils/db";
+import Department from "../../../entities/Department";
+import Employee from "../../../entities/Employee";
+import { apiHandler } from "../../../utils/apiHandler";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
 
-export default apiHandler(
-  {
-    // GET: List all departments
-    GET: async (req, res, session) => {
-      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
+export default apiHandler({
+  GET: async (req, res) => {
+    const session = await getServerSession(req, res, authOptions);
+    
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const departmentRepository = AppDataSource.getRepository(Department);
+      const employeeRepository = AppDataSource.getRepository(Employee);
       
       // Build query options
       const options = {
@@ -17,70 +26,87 @@ export default apiHandler(
       
       // Add relations if requested
       if (req.query.withManager === 'true') {
-        options.relations = ['employees'];
-        options.where = {
-          managerId: !null, // Only get departments with managers
-        };
+        options.relations = ['manager'];
       }
       
       // Get departments
       const departments = await departmentRepository.find(options);
       
-      // Transform to include employee count
-      const departmentsWithStats = departments.map(dept => {
-        const employeeCount = dept.employees ? dept.employees.length : 0;
-        
-        // Remove employees array from response to avoid bloating
-        const { employees, ...departmentData } = dept;
-        
-        return {
-          ...departmentData,
-          employeeCount
-        };
-      });
+      // Get employee counts for each department
+      const departmentsWithStats = await Promise.all(
+        departments.map(async (dept) => {
+          const employeeCount = await employeeRepository.count({
+            where: { department: { id: dept.id } }
+          });
+          
+          return {
+            ...dept,
+            employeeCount
+          };
+        })
+      );
       
-      // Return the results
-      return res.status(200).json({
-        success: true,
-        data: departmentsWithStats
-      });
-    },
+      return res.status(200).json(departmentsWithStats);
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+      return res.status(500).json({ message: "Failed to fetch departments" });
+    }
+  },
+  
+  POST: async (req, res) => {
+    const session = await getServerSession(req, res, authOptions);
     
-    // POST: Create a new department (admin and HR only)
-    POST: async (req, res, session) => {
-      // Check permissions
-      if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
-        throwApiError.forbidden('You do not have permission to create departments');
-      }
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    // Check permissions
+    if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
+      return res.status(403).json({ message: "You do not have permission to create departments" });
+    }
+    
+    try {
+      const departmentRepository = AppDataSource.getRepository(Department);
       
       // Validate required fields
       const { name } = req.body;
       
       if (!name) {
-        throwApiError.badRequest('Department name is required');
+        return res.status(400).json({ message: "Department name is required" });
       }
       
-      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
-      
       // Check if department already exists
-      const existingDepartment = await departmentRepository.findOneBy({ name });
+      const existingDepartment = await departmentRepository.findOne({
+        where: { name }
+      });
       
       if (existingDepartment) {
-        throwApiError.conflict('A department with this name already exists');
+        return res.status(409).json({ message: "A department with this name already exists" });
+      }
+      
+      // If manager ID is provided, verify the employee exists
+      if (req.body.managerId) {
+        const employeeRepository = AppDataSource.getRepository(Employee);
+        const manager = await employeeRepository.findOne({
+          where: { id: req.body.managerId }
+        });
+        
+        if (!manager) {
+          return res.status(400).json({ message: "Employee not found for manager assignment" });
+        }
       }
       
       // Create the department
       const department = departmentRepository.create(req.body);
       const savedDepartment = await departmentRepository.save(department);
       
-      // Return success with the created department
-      return res.status(201).json({
-        success: true,
-        data: savedDepartment,
-        message: 'Department created successfully'
-      });
+      // Add audit log
+      console.log(`[AUDIT] Department "${name}" created by ${session.user.name} (${session.user.id}) at ${new Date().toISOString()}`);
+      
+      return res.status(201).json(savedDepartment);
+    } catch (error) {
+      console.error("Error creating department:", error);
+      return res.status(500).json({ message: "Failed to create department" });
     }
-  },
-  true, // Require authentication
-  null // No specific role required (role-based checks in the handlers)
-);
+  }
+});

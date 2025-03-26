@@ -1,39 +1,29 @@
+// utils/apiHandler.js
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../pages/api/auth/[...nextauth]';
-import { AppDataSource } from './db';
+import { dbService } from './dbService';
 
 /**
  * A wrapper for API route handlers to provide consistent error handling and response format
  * @param {Object} handlers - Object containing handler functions for different HTTP methods
- * @param {boolean} requireAuth - Whether the endpoint requires authentication
- * @param {string} requiredRole - Optional role required to access this endpoint
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.requireAuth - Whether the endpoint requires authentication
+ * @param {Array<string>} options.allowedRoles - Roles allowed to access this endpoint
  */
 export const apiHandler = (
   handlers,
-  requireAuth = true,
-  requiredRole = null
+  options = { requireAuth: true, allowedRoles: null }
 ) => {
   return async (req, res) => {
-    // Ensure database connection
-    try {
-      if (!AppDataSource.isInitialized) {
-        await AppDataSource.initialize();
-      }
-    } catch (error) {
-      console.error('Failed to initialize database connection:', error);
-      return res.status(500).json({
-        success: false,
-        error: 'Database connection failed',
-      });
-    }
-
     // Handle CORS preflight
     if (req.method === 'OPTIONS') {
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       return res.status(200).end();
     }
 
     // Check request method is supported
-    const handler = handlers[req.method];
+    const handler = handlers[req.method?.toLowerCase()];
     if (!handler) {
       return res.status(405).json({
         success: false,
@@ -43,15 +33,11 @@ export const apiHandler = (
 
     // Authenticate request if required
     let session = null;
-    if (requireAuth) {
+    if (options.requireAuth) {
       // Use try/catch as getServerSession might throw if parameters are incorrect
       try {
-        // Pass the authOptions correctly - fix for NextAuth compatibility
-        session = await getServerSession(
-          req,
-          res,
-          authOptions
-        );
+        // Pass the authOptions correctly
+        session = await getServerSession(req, res, authOptions);
       } catch (error) {
         console.error("Authentication error:", error);
       }
@@ -63,41 +49,47 @@ export const apiHandler = (
         });
       }
 
-      // Check required role if specified
-      if (requiredRole && session.user.role !== requiredRole) {
-        // Allow if user role is admin (they can access everything)
-        if (session.user.role !== 'admin') {
+      // Check allowed roles if specified
+      if (options.allowedRoles && options.allowedRoles.length > 0) {
+        // Allow if user role is Admin (they can access everything)
+        if (session.user.role !== 'Admin' && !options.allowedRoles.includes(session.user.role)) {
           return res.status(403).json({
             success: false,
             error: 'Forbidden - Insufficient permissions',
           });
         }
       }
+      
+      // Add isMockDb flag in development for UI hints
+      if (process.env.NODE_ENV !== 'production') {
+        session.isMockDb = dbService.isMockDb();
+      }
     }
 
     try {
+      // Add session to request for handler use
+      req.session = session;
+      
       // Execute the handler function
-      await handler(req, res, session);
+      await handler(req, res);
     } catch (error) {
       console.error(`API Error [${req.method} ${req.url}]:`, error);
 
-      // Handle specific TypeORM errors
-      if (error.code === '23505') {
-        // Duplicate key error
-        return res.status(409).json({
-          success: false,
-          error: 'A record with this information already exists',
-        });
-      }
-
-      // Return appropriate error response
+      // Determine status code and message
       const status = error.statusCode || 500;
       const message = error.message || 'Internal server error';
       
-      return res.status(status).json({
+      // Include stack trace in development
+      const errorResponse = {
         success: false,
         error: message,
-      });
+      };
+      
+      if (process.env.NODE_ENV !== 'production' && status === 500) {
+        errorResponse.stack = error.stack;
+      }
+      
+      return res.status(status).json(errorResponse);
     }
   };
 };
@@ -117,7 +109,7 @@ export const parseQueryParams = (query) => {
     };
   }
   
-  // Handle search and filters (basic implementation, can be expanded)
+  // Handle search and filters
   if (query.search) {
     params.search = query.search;
   }
@@ -127,25 +119,83 @@ export const parseQueryParams = (query) => {
     params.departmentId = query.departmentId;
   }
   
+  // Status filter
+  if (query.status) {
+    params.status = query.status;
+  }
+  
+  // Date range filters
+  if (query.startDate) {
+    params.startDate = new Date(query.startDate);
+  }
+  
+  if (query.endDate) {
+    params.endDate = new Date(query.endDate);
+  }
+  
   return params;
 };
 
-// Helper function to validate access to department data
+/**
+ * Validate access to department data based on user role and department
+ * @param {Object} session - User session data
+ * @param {string} departmentId - Department ID to check access for
+ * @returns {boolean} - Whether user has access
+ */
 export const validateDepartmentAccess = (session, departmentId) => {
   // Skip validation if no department ID is provided
   if (!departmentId) return true;
   
-  // Admins and HR managers can access all departments
-  if (session.user.role === 'admin' || session.user.role === 'hr_manager') {
+  // Admins can access all departments
+  if (session.user.role === 'Admin') {
     return true;
   }
   
-  // Department heads can only access their own department
-  if (session.user.role === 'department_head') {
+  // Department managers can only access their own department
+  if (session.user.role === 'Manager') {
     return session.user.departmentId === departmentId;
   }
   
-  // Regular employees can't access department data
+  // Regular employees can access their own department data if needed
+  if (session.user.departmentId === departmentId) {
+    return true;
+  }
+  
+  // Deny access in all other cases
+  return false;
+};
+
+/**
+ * Validate access to employee data based on user role and departments
+ * @param {Object} session - User session data
+ * @param {Object|string} employee - Employee data or employee ID
+ * @returns {boolean} - Whether user has access
+ */
+export const validateEmployeeAccess = async (session, employee) => {
+  // Admins can access all employee data
+  if (session.user.role === 'Admin') {
+    return true;
+  }
+  
+  // Get employee data if only ID was provided
+  let employeeData = employee;
+  if (typeof employee === 'string') {
+    employeeData = await dbService.getEmployeeById(employee);
+    if (!employeeData) return false;
+  }
+  
+  // Department managers can access employees in their department
+  if (session.user.role === 'Manager' && 
+      session.user.departmentId === employeeData.departmentId) {
+    return true;
+  }
+  
+  // Users can access their own data
+  if (session.user.id === employeeData.id) {
+    return true;
+  }
+  
+  // Deny access in all other cases
   return false;
 };
 

@@ -1,3 +1,4 @@
+// entities/Department.js
 import { EntitySchema } from "typeorm";
 
 // Class definition for IntelliSense/typing
@@ -5,10 +6,13 @@ export class Department {
   id;
   name;
   description;
+  manager;
   managerId;
   createdAt;
   updatedAt;
   employees;
+  users;
+  documents;
 }
 
 // Entity Schema definition for TypeORM
@@ -45,10 +49,53 @@ export const DepartmentEntity = new EntitySchema({
     }
   },
   relations: {
+    manager: {
+      type: "many-to-one",
+      target: "Employee",
+      joinColumn: {
+        name: "managerId"
+      },
+      nullable: true
+    },
     employees: {
       type: "one-to-many",
+      target: "Employee",
+      inverseSide: "department"
+    },
+    users: {
+      type: "one-to-many",
       target: "User",
-      inverseSide: "departmentId"
+      inverseSide: "department"
+    },
+    documents: {
+      type: "one-to-many",
+      target: "Document",
+      inverseSide: "department"
     }
-  }
+  },
+  indices: [
+    {
+      name: "IDX_DEPARTMENT_NAME",
+      columns: ["name"],
+      unique: true
+    },
+    {
+      name: "IDX_DEPARTMENT_MANAGER",
+      columns: ["managerId"]
+    }
+  ]
 });
+
+// Helper function to get department details with employee count
+export const getDepartmentWithEmployeeCount = async (department, dbService) => {
+  if (!department) return null;
+  
+  const employees = await dbService.getEmployees({ departmentId: department.id });
+  
+  return {
+    ...department,
+    employeeCount: employees.length
+  };
+};
+
+export default DepartmentEntity;

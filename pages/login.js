@@ -4,10 +4,12 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import styles from '../styles/Login.module.css';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   const [error, setError] = useState('');
@@ -15,10 +17,21 @@ export default function Login() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
+  // Extract error message from URL if provided
+  useEffect(() => {
+    if (router.query.error) {
+      setError(
+        router.query.error === 'CredentialsSignin' 
+          ? 'Invalid email or password'
+          : 'Authentication failed. Please try again.'
+      );
+    }
+  }, [router.query]);
+
   // If already authenticated, redirect to dashboard
   useEffect(() => {
     if (session) {
-      router.push('/');
+      router.push(router.query.callbackUrl || '/dashboard');
     }
   }, [session, router]);
 
@@ -33,8 +46,8 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!credentials.username || !credentials.password) {
-      setError('Please enter both username and password');
+    if (!credentials.email || !credentials.password) {
+      setError('Please enter both email and password');
       return;
     }
     
@@ -42,35 +55,23 @@ export default function Login() {
       setIsLoading(true);
       setError('');
       
-      // For testing, allow hardcoded user
-      if (credentials.username === 'FCalkins' && credentials.password === 'password') {
-        // Use hardcoded credentials with NextAuth
-        const result = await signIn('credentials', {
-          redirect: false,
-          username: 'FCalkins',
-          password: 'password'
-        });
-        
-        if (result.error) {
-          setError(result.error || 'Authentication failed. Please check your credentials.');
-          console.error('Auth error:', result);
-        } else {
-          router.push('/');
-        }
+      // Send authentication request to NextAuth
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: credentials.email,
+        password: credentials.password
+      });
+      
+      if (result.error) {
+        setError(
+          result.error === 'CredentialsSignin' 
+            ? 'Invalid email or password'
+            : result.error || 'Authentication failed. Please check your credentials.'
+        );
+        console.error('Auth error:', result);
       } else {
-        // Regular authentication flow
-        const result = await signIn('credentials', {
-          redirect: false,
-          username: credentials.username,
-          password: credentials.password
-        });
-        
-        if (result.error) {
-          setError(result.error || 'Authentication failed. Please check your credentials.');
-          console.error('Auth error:', result);
-        } else {
-          router.push('/');
-        }
+        // Successful login, redirect to dashboard or callback URL
+        router.push(router.query.callbackUrl || '/dashboard');
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -105,6 +106,7 @@ export default function Login() {
 
       <div className={styles.loginCard}>
         <div className={styles.logoContainer}>
+          {/* Logo can be added here */}
           <h1 className={styles.title}>Mountain Care HR Platform</h1>
         </div>
         
@@ -112,27 +114,29 @@ export default function Login() {
           <h2 className={styles.subtitle}>Sign in to access your dashboard</h2>
           
           {error && (
-            <div className={styles.errorMessage}>
+            <div className={styles.errorMessage} role="alert">
               {error}
             </div>
           )}
           
           <div className={styles.testCredentials}>
-            <p>Test with: Username: FCalkins | Password: password</p>
+            <p>Test with: admin@mountaincare.com | admin123</p>
+            <p>or: faith@mountaincare.com | hr123</p>
           </div>
           
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
-              <label htmlFor="username" className={styles.formLabel}>Username</label>
+              <label htmlFor="email" className={styles.formLabel}>Email</label>
               <input
-                id="username"
-                name="username"
-                type="text"
-                value={credentials.username}
+                id="email"
+                name="email"
+                type="email"
+                value={credentials.email}
                 onChange={handleChange}
                 className={styles.formControl}
-                placeholder="Username"
+                placeholder="your.email@mountaincare.com"
                 required
+                autoComplete="email"
               />
             </div>
             
@@ -145,8 +149,9 @@ export default function Login() {
                 value={credentials.password}
                 onChange={handleChange}
                 className={styles.formControl}
-                placeholder="Password"
+                placeholder="Your password"
                 required
+                autoComplete="current-password"
               />
             </div>
             
@@ -155,11 +160,16 @@ export default function Login() {
               className={styles.button}
               disabled={isLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? (
+                <>
+                  <span className={styles.spinnerSmall}></span>
+                  Signing in...
+                </>
+              ) : 'Sign in'}
             </button>
             
             <div className={styles.forgotPassword}>
-              <a href="#">Forgot password?</a>
+              <Link href="/forgot-password">Forgot password?</Link>
             </div>
           </form>
         </div>

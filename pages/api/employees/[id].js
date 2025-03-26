@@ -1,84 +1,126 @@
-import { apiHandler, validateDepartmentAccess, throwApiError } from '../../../utils/apiHandler';
-import { AppDataSource } from '../../../utils/db';
-import { EmployeeEntity } from '../../../entities/Employee';
-import { DepartmentEntity } from '../../../entities/Department';
+import { AppDataSource } from "../../../utils/db";
+import Employee from "../../../entities/Employee";
+import Department from "../../../entities/Department";
+import { apiHandler } from "../../../utils/apiHandler";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
 
-export default apiHandler(
-  {
-    // GET: Fetch a single employee by ID
-    GET: async (req, res, session) => {
-      const { id } = req.query;
+export default apiHandler({
+  GET: async (req, res) => {
+    const { id } = req.query;
+    const session = await getServerSession(req, res, authOptions);
+    
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const employeeRepository = AppDataSource.getRepository(Employee);
       
-      // Get employee with department
-      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
+      // Get employee with department and manager
       const employee = await employeeRepository.findOne({
-        where: { id: id },
+        where: { id },
         relations: ['department', 'manager']
       });
       
       // Check if employee exists
       if (!employee) {
-        throwApiError.notFound('Employee not found');
+        return res.status(404).json({ message: "Employee not found" });
       }
       
       // Check access based on role
-      if (session.user.role === 'department_head' && 
-          session.user.departmentId !== employee.departmentId) {
-        throwApiError.forbidden('You do not have access to this employee record');
+      if (session.user.role === 'department_manager' && 
+          session.user.departmentId !== employee.department?.id) {
+        return res.status(403).json({ message: "You do not have access to this employee record" });
       }
       
-      // Return the employee data
-      return res.status(200).json({
-        success: true,
-        data: employee
-      });
-    },
+      // Regular employees can only view their own record
+      if (session.user.role === 'employee' && 
+          session.user.employeeId !== employee.id) {
+        return res.status(403).json({ message: "You do not have access to this employee record" });
+      }
+      
+      return res.status(200).json(employee);
+    } catch (error) {
+      console.error("Error fetching employee:", error);
+      return res.status(500).json({ message: "Failed to fetch employee" });
+    }
+  },
+  
+  PUT: async (req, res) => {
+    const { id } = req.query;
+    const session = await getServerSession(req, res, authOptions);
     
-    // PUT: Update an employee
-    PUT: async (req, res, session) => {
-      const { id } = req.query;
-      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const employeeRepository = AppDataSource.getRepository(Employee);
+      const departmentRepository = AppDataSource.getRepository(Department);
       
       // Find the employee to update
       const employee = await employeeRepository.findOne({
-        where: { id: id },
+        where: { id },
         relations: ['department']
       });
       
       // Check if employee exists
       if (!employee) {
-        throwApiError.notFound('Employee not found');
+        return res.status(404).json({ message: "Employee not found" });
       }
       
       // Check access based on role
-      if (session.user.role === 'department_head' && 
-          session.user.departmentId !== employee.departmentId) {
-        throwApiError.forbidden('You do not have access to this employee record');
+      // Department managers can only update employees in their department
+      if (session.user.role === 'department_manager' && 
+          session.user.departmentId !== employee.department?.id) {
+        return res.status(403).json({ message: "You do not have access to this employee record" });
       }
       
-      // Check if department is changing and validate access
+      // Regular employees cannot update other employees
+      if (session.user.role === 'employee' && 
+          session.user.employeeId !== employee.id) {
+        return res.status(403).json({ message: "You do not have access to this employee record" });
+      }
+      
+      // Department change validation - only admin and HR can change departments
       if (req.body.departmentId && 
-          req.body.departmentId !== employee.departmentId && 
-          !validateDepartmentAccess(session, req.body.departmentId)) {
-        throwApiError.forbidden('You do not have access to the target department');
-      }
-      
-      // If department ID is changing, check if it exists
-      if (req.body.departmentId && req.body.departmentId !== employee.departmentId) {
-        const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
-        const department = await departmentRepository.findOneBy({ id: req.body.departmentId });
+          req.body.departmentId !== employee.department?.id) {
+          
+        // Only admin and HR can change departments
+        if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
+          return res.status(403).json({ message: "You do not have permission to change employee department" });
+        }
+          
+        // Verify department exists
+        const department = await departmentRepository.findOne({
+          where: { id: req.body.departmentId }
+        });
         
         if (!department) {
-          throwApiError.badRequest('Department not found');
+          return res.status(400).json({ message: "Department not found" });
         }
       }
       
       // Check if email is changing and if it's already in use
       if (req.body.email && req.body.email !== employee.email) {
-        const existingEmployee = await employeeRepository.findOneBy({ email: req.body.email });
+        const existingEmployee = await employeeRepository.findOne({
+          where: { email: req.body.email }
+        });
         
         if (existingEmployee) {
-          throwApiError.conflict('An employee with this email already exists');
+          return res.status(409).json({ message: "An employee with this email already exists" });
+        }
+      }
+      
+      // Check if manager ID is valid
+      if (req.body.managerId && req.body.managerId !== employee.managerId) {
+        const manager = await employeeRepository.findOne({
+          where: { id: req.body.managerId }
+        });
+        
+        if (!manager) {
+          return res.status(400).json({ message: "Manager not found" });
         }
       }
       
@@ -91,54 +133,73 @@ export default apiHandler(
       };
       
       // Update the employee
-      await employeeRepository.update(id, updateData);
+      employeeRepository.merge(employee, updateData);
+      const updatedEmployee = await employeeRepository.save(employee);
       
-      // Get the updated employee
-      const updatedEmployee = await employeeRepository.findOne({
-        where: { id: id },
+      // Add audit log
+      console.log(`[AUDIT] Employee ${id} updated by ${session.user.name} (${session.user.id}) at ${new Date().toISOString()}`);
+      
+      // Get the updated employee with relations
+      const result = await employeeRepository.findOne({
+        where: { id },
         relations: ['department', 'manager']
       });
       
-      // Return success with the updated employee
-      return res.status(200).json({
-        success: true,
-        data: updatedEmployee,
-        message: 'Employee updated successfully'
-      });
-    },
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      return res.status(500).json({ message: "Failed to update employee" });
+    }
+  },
+  
+  DELETE: async (req, res) => {
+    const { id } = req.query;
+    const session = await getServerSession(req, res, authOptions);
     
-    // DELETE: Remove an employee
-    DELETE: async (req, res, session) => {
-      const { id } = req.query;
-      
-      // Only admin and HR managers can delete employees
-      if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
-        throwApiError.forbidden('You do not have permission to delete employees');
-      }
-      
-      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    // Only admin and HR managers can delete employees
+    if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
+      return res.status(403).json({ message: "You do not have permission to delete employees" });
+    }
+    
+    try {
+      const employeeRepository = AppDataSource.getRepository(Employee);
       
       // Find the employee to delete
       const employee = await employeeRepository.findOne({
-        where: { id: id },
+        where: { id },
         relations: ['department']
       });
       
       // Check if employee exists
       if (!employee) {
-        throwApiError.notFound('Employee not found');
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      // Create log of deletion for audit purposes
+      console.log(`[AUDIT] Employee ${id} (${employee.firstName} ${employee.lastName}) deleted by ${session.user.name} (${session.user.id}) at ${new Date().toISOString()}`);
+      
+      // Check if this employee is a manager of other employees
+      const managedEmployees = await employeeRepository.find({
+        where: { manager: { id } }
+      });
+      
+      if (managedEmployees.length > 0) {
+        return res.status(400).json({ 
+          message: `Cannot delete employee who is a manager of ${managedEmployees.length} other employees. Reassign them first.` 
+        });
       }
       
       // Delete the employee
       await employeeRepository.remove(employee);
       
-      // Return success
-      return res.status(200).json({
-        success: true,
-        message: 'Employee deleted successfully'
-      });
+      return res.status(200).json({ message: "Employee deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+      return res.status(500).json({ message: "Failed to delete employee" });
     }
-  },
-  true, // Require authentication
-  null // No specific role required (role-based checks are handled within the handlers)
-);
+  }
+});

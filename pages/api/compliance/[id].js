@@ -18,7 +18,7 @@ export default apiHandler({
       
       const record = await complianceRepository.findOne({
         where: { id },
-        relations: ['employee', 'employee.department'],
+        relations: ['employee', 'employee.department', 'department', 'verifier'],
       });
       
       if (!record) {
@@ -30,11 +30,28 @@ export default apiHandler({
         session.user.role !== 'admin' && 
         session.user.role !== 'hr_manager' &&
         (session.user.role === 'department_manager' && 
-         record.employee.department.id !== session.user.departmentId) &&
+         (record.employee?.department?.id !== session.user.departmentId && 
+          record.department?.id !== session.user.departmentId)) &&
         (session.user.role === 'employee' && 
-         record.employee.id !== session.user.employeeId)
+         record.employee?.id !== session.user.employeeId)
       ) {
         return res.status(403).json({ message: "Forbidden - Insufficient permissions" });
+      }
+      
+      // Check if this is HIPAA sensitive data and if user has access
+      if (record.isHIPAASensitive && 
+          session.user.role !== 'admin' && 
+          session.user.role !== 'hr_manager') {
+        // Only return non-sensitive fields for department managers and employees
+        const sanitizedRecord = {
+          id: record.id,
+          licenseType: record.licenseType,
+          status: record.status,
+          expirationDate: record.expirationDate,
+          employee: record.employee,
+          department: record.department
+        };
+        return res.status(200).json(sanitizedRecord);
       }
       
       return res.status(200).json(record);
@@ -66,6 +83,13 @@ export default apiHandler({
       
       if (!record) {
         return res.status(404).json({ message: "Compliance record not found" });
+      }
+      
+      // Add verification info if status is changed
+      if (req.body.status && req.body.status !== record.status) {
+        req.body.lastVerificationDate = new Date();
+        req.body.verifiedBy = session.user.name;
+        req.body.verifierId = session.user.id;
       }
       
       // Update record
@@ -102,6 +126,10 @@ export default apiHandler({
       if (!record) {
         return res.status(404).json({ message: "Compliance record not found" });
       }
+      
+      // Create log of deletion for audit purposes
+      const now = new Date();
+      console.log(`[AUDIT] Compliance record ${id} deleted by ${session.user.name} (${session.user.id}) at ${now.toISOString()}`);
       
       await complianceRepository.remove(record);
       

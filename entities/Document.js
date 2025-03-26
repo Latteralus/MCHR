@@ -1,3 +1,4 @@
+// entities/Document.js
 import { EntitySchema } from "typeorm";
 
 // Enum for document types
@@ -25,40 +26,9 @@ export const DocumentAccessLevel = {
   INDIVIDUAL: "individual"    // Only the specific employee
 };
 
-// Class definition for IntelliSense/typing
-export class Document {
-  id;
-  title;
-  description;
-  documentType;
-  accessLevel;
-  fileName;
-  filePath;
-  fileSize;
-  mimeType;
-  isEncrypted;
-  version;
-  employee;
-  employeeId;
-  department;
-  departmentId;
-  expirationDate;
-  uploadedById;
-  createdAt;
-  updatedAt;
-  accessLog;
-  retentionPeriod;
-  scheduledDeletionDate;
-  tags;
-  externalReference;
-  requiresAcknowledgment;
-  acknowledgments;
-}
-
 // Entity Schema definition for TypeORM
-export const DocumentEntity = new EntitySchema({
+const Document = new EntitySchema({
   name: "Document",
-  target: Document,
   tableName: "documents",
   columns: {
     id: {
@@ -71,7 +41,7 @@ export const DocumentEntity = new EntitySchema({
       length: 255
     },
     description: {
-      type: "varchar",
+      type: "text",
       nullable: true
     },
     documentType: {
@@ -85,10 +55,12 @@ export const DocumentEntity = new EntitySchema({
       default: DocumentAccessLevel.HR
     },
     fileName: {
-      type: "varchar"
+      type: "varchar",
+      length: 255
     },
     filePath: {
-      type: "varchar"
+      type: "varchar",
+      length: 512
     },
     fileSize: {
       type: "int",
@@ -96,9 +68,14 @@ export const DocumentEntity = new EntitySchema({
     },
     mimeType: {
       type: "varchar",
+      length: 100,
       nullable: true
     },
     isEncrypted: {
+      type: "boolean",
+      default: false
+    },
+    isHIPAASensitive: {
       type: "boolean",
       default: false
     },
@@ -106,20 +83,9 @@ export const DocumentEntity = new EntitySchema({
       type: "int",
       default: 1
     },
-    employeeId: {
-      type: "uuid",
-      nullable: true
-    },
-    departmentId: {
-      type: "uuid",
-      nullable: true
-    },
     expirationDate: {
       type: "date",
       nullable: true
-    },
-    uploadedById: {
-      type: "uuid"
     },
     createdAt: {
       type: "timestamp",
@@ -135,7 +101,7 @@ export const DocumentEntity = new EntitySchema({
     },
     retentionPeriod: {
       type: "int",
-      default: 0
+      default: 365 // Default to 1 year in days
     },
     scheduledDeletionDate: {
       type: "date",
@@ -147,6 +113,7 @@ export const DocumentEntity = new EntitySchema({
     },
     externalReference: {
       type: "varchar",
+      length: 255,
       nullable: true
     },
     requiresAcknowledgment: {
@@ -159,8 +126,7 @@ export const DocumentEntity = new EntitySchema({
     }
   },
   relations: {
-    // Change property names to match column names
-    employeeId: {
+    employee: {
       type: "many-to-one",
       target: "Employee",
       joinColumn: {
@@ -168,13 +134,48 @@ export const DocumentEntity = new EntitySchema({
       },
       nullable: true
     },
-    departmentId: {
+    department: {
       type: "many-to-one",
       target: "Department",
       joinColumn: {
         name: "departmentId"
       },
       nullable: true
+    },
+    uploadedBy: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "uploadedById"
+      }
     }
-  }
+  },
+  indices: [
+    {
+      name: "idx_document_type",
+      columns: ["documentType"]
+    },
+    {
+      name: "idx_document_access",
+      columns: ["accessLevel"]
+    },
+    {
+      name: "idx_document_employee",
+      columns: ["employeeId"]
+    },
+    {
+      name: "idx_document_department",
+      columns: ["departmentId"]
+    },
+    {
+      name: "idx_document_expiration",
+      columns: ["expirationDate"]
+    },
+    {
+      name: "idx_document_deletion",
+      columns: ["scheduledDeletionDate"]
+    }
+  ]
 });
+
+export default Document;

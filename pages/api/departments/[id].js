@@ -1,142 +1,162 @@
-import { apiHandler, throwApiError } from '../../../utils/apiHandler';
-import { AppDataSource } from '../../../utils/db';
-import { DepartmentEntity } from '../../../entities/Department';
-import { EmployeeEntity } from '../../../entities/Employee';
+import { AppDataSource } from "../../../utils/db";
+import Department from "../../../entities/Department";
+import Employee from "../../../entities/Employee";
+import { apiHandler } from "../../../utils/apiHandler";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
 
-export default apiHandler(
-  {
-    // GET: Fetch a single department by ID
-    GET: async (req, res, session) => {
-      const { id } = req.query;
+export default apiHandler({
+  GET: async (req, res) => {
+    const { id } = req.query;
+    const session = await getServerSession(req, res, authOptions);
+    
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const departmentRepository = AppDataSource.getRepository(Department);
+      const employeeRepository = AppDataSource.getRepository(Employee);
       
-      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
-      
-      // Get the department
+      // Get the department with manager relation
       const department = await departmentRepository.findOne({
-        where: { id: id }
+        where: { id },
+        relations: ['manager']
       });
       
       // Check if department exists
       if (!department) {
-        throwApiError.notFound('Department not found');
+        return res.status(404).json({ message: "Department not found" });
       }
       
       // Get employee count for this department
-      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
       const employeeCount = await employeeRepository.count({
-        where: { departmentId: id }
+        where: { department: { id } }
       });
       
-      // Get manager if one is assigned
-      let manager = null;
-      if (department.managerId) {
-        manager = await employeeRepository.findOne({
-          where: { id: department.managerId },
-          select: ['id', 'firstName', 'lastName', 'email', 'position']
-        });
-      }
+      // Return department data with employee count
+      const departmentWithStats = {
+        ...department,
+        employeeCount
+      };
       
-      // Return department data with employee count and manager
-      return res.status(200).json({
-        success: true,
-        data: {
-          ...department,
-          employeeCount,
-          manager
-        }
-      });
-    },
+      return res.status(200).json(departmentWithStats);
+    } catch (error) {
+      console.error("Error fetching department:", error);
+      return res.status(500).json({ message: "Failed to fetch department" });
+    }
+  },
+  
+  PUT: async (req, res) => {
+    const { id } = req.query;
+    const session = await getServerSession(req, res, authOptions);
     
-    // PUT: Update a department
-    PUT: async (req, res, session) => {
-      // Only admin and HR managers can update departments
-      if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
-        throwApiError.forbidden('You do not have permission to update departments');
-      }
-      
-      const { id } = req.query;
-      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    // Only admin and HR managers can update departments
+    if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
+      return res.status(403).json({ message: "You do not have permission to update departments" });
+    }
+    
+    try {
+      const departmentRepository = AppDataSource.getRepository(Department);
+      const employeeRepository = AppDataSource.getRepository(Employee);
       
       // Check if department exists
-      const department = await departmentRepository.findOneBy({ id: id });
+      const department = await departmentRepository.findOne({
+        where: { id }
+      });
       
       if (!department) {
-        throwApiError.notFound('Department not found');
+        return res.status(404).json({ message: "Department not found" });
       }
       
       // Check if name is changing and if it already exists
       if (req.body.name && req.body.name !== department.name) {
-        const existingDepartment = await departmentRepository.findOneBy({ name: req.body.name });
+        const existingDepartment = await departmentRepository.findOne({
+          where: { name: req.body.name }
+        });
         
         if (existingDepartment) {
-          throwApiError.conflict('A department with this name already exists');
+          return res.status(409).json({ message: "A department with this name already exists" });
         }
       }
       
       // If assigning a manager, check if employee exists
       if (req.body.managerId && req.body.managerId !== department.managerId) {
-        const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
-        const manager = await employeeRepository.findOneBy({ id: req.body.managerId });
+        const manager = await employeeRepository.findOne({
+          where: { id: req.body.managerId }
+        });
         
         if (!manager) {
-          throwApiError.badRequest('Employee not found for manager assignment');
+          return res.status(400).json({ message: "Employee not found for manager assignment" });
         }
       }
       
       // Update the department
-      await departmentRepository.update(id, req.body);
+      departmentRepository.merge(department, req.body);
+      const updatedDepartment = await departmentRepository.save(department);
       
-      // Get the updated department
-      const updatedDepartment = await departmentRepository.findOneBy({ id: id });
+      // Add audit log
+      console.log(`[AUDIT] Department ${id} updated by ${session.user.name} (${session.user.id}) at ${new Date().toISOString()}`);
       
-      // Return success with updated department
-      return res.status(200).json({
-        success: true,
-        data: updatedDepartment,
-        message: 'Department updated successfully'
-      });
-    },
+      return res.status(200).json(updatedDepartment);
+    } catch (error) {
+      console.error("Error updating department:", error);
+      return res.status(500).json({ message: "Failed to update department" });
+    }
+  },
+  
+  DELETE: async (req, res) => {
+    const { id } = req.query;
+    const session = await getServerSession(req, res, authOptions);
     
-    // DELETE: Remove a department
-    DELETE: async (req, res, session) => {
-      // Only admin can delete departments
-      if (session.user.role !== 'admin') {
-        throwApiError.forbidden('You do not have permission to delete departments');
-      }
-      
-      const { id } = req.query;
-      
-      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
-      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    // Only admin can delete departments
+    if (session.user.role !== 'admin') {
+      return res.status(403).json({ message: "You do not have permission to delete departments" });
+    }
+    
+    try {
+      const departmentRepository = AppDataSource.getRepository(Department);
+      const employeeRepository = AppDataSource.getRepository(Employee);
       
       // Check if department exists
-      const department = await departmentRepository.findOneBy({ id: id });
+      const department = await departmentRepository.findOne({
+        where: { id }
+      });
       
       if (!department) {
-        throwApiError.notFound('Department not found');
+        return res.status(404).json({ message: "Department not found" });
       }
       
       // Check if department has employees
       const employeeCount = await employeeRepository.count({
-        where: { departmentId: id }
+        where: { department: { id } }
       });
       
       if (employeeCount > 0) {
-        throwApiError.badRequest(
-          `Cannot delete department that has ${employeeCount} employees assigned. Reassign them first.`
-        );
+        return res.status(400).json({ 
+          message: `Cannot delete department that has ${employeeCount} employees assigned. Reassign them first.` 
+        });
       }
       
-      // Delete the department
-      await departmentRepository.delete(id);
+      // Create log of deletion for audit purposes
+      const now = new Date();
+      console.log(`[AUDIT] Department "${department.name}" (${id}) deleted by ${session.user.name} (${session.user.id}) at ${now.toISOString()}`);
       
-      // Return success
-      return res.status(200).json({
-        success: true,
-        message: 'Department deleted successfully'
-      });
+      // Delete the department
+      await departmentRepository.remove(department);
+      
+      return res.status(200).json({ message: "Department deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting department:", error);
+      return res.status(500).json({ message: "Failed to delete department" });
     }
-  },
-  true, // Require authentication
-  null // No specific role required (role-based checks in handlers)
-);
+  }
+});

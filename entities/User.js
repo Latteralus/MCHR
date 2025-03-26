@@ -1,22 +1,24 @@
+// entities/User.js
 import { EntitySchema } from "typeorm";
 
-// Enum for user roles
+// Enum for user roles - updated to match our application needs
 export const UserRole = {
-  ADMIN: "admin",
-  HR_MANAGER: "hr_manager",
-  DEPARTMENT_HEAD: "department_head",
-  EMPLOYEE: "employee"
+  ADMIN: "Admin",
+  MANAGER: "Manager",
+  EMPLOYEE: "Employee"
 };
 
 // Class definition for IntelliSense/typing
 export class User {
   id;
-  name;
+  firstName;
+  lastName;
   email;
   passwordHash;
   role;
   department;
   departmentId;
+  lastLogin;
   createdAt;
   updatedAt;
   resetPasswordToken;
@@ -35,7 +37,11 @@ export const UserEntity = new EntitySchema({
       type: "uuid",
       generated: "uuid"
     },
-    name: {
+    firstName: {
+      type: "varchar",
+      length: 100
+    },
+    lastName: {
       type: "varchar",
       length: 100
     },
@@ -53,6 +59,10 @@ export const UserEntity = new EntitySchema({
     },
     departmentId: {
       type: "uuid",
+      nullable: true
+    },
+    lastLogin: {
+      type: "timestamp",
       nullable: true
     },
     createdAt: {
@@ -77,8 +87,7 @@ export const UserEntity = new EntitySchema({
     }
   },
   relations: {
-    // Change property name to match column name
-    departmentId: {
+    department: {
       type: "many-to-one",
       target: "Department",
       joinColumn: {
@@ -86,5 +95,33 @@ export const UserEntity = new EntitySchema({
       },
       nullable: true
     }
-  }
+  },
+  indices: [
+    {
+      name: "IDX_USER_EMAIL",
+      columns: ["email"]
+    },
+    {
+      name: "IDX_USER_DEPARTMENT",
+      columns: ["departmentId"]
+    }
+  ]
 });
+
+// Helper function to get full name
+export const getUserFullName = (user) => {
+  return `${user.firstName} ${user.lastName}`;
+};
+
+// Helper function to create a safe user object (without sensitive data)
+export const createSafeUser = (user) => {
+  if (!user) return null;
+  
+  const { passwordHash, resetPasswordToken, resetPasswordExpires, ...safeUser } = user;
+  return {
+    ...safeUser,
+    fullName: getUserFullName(user)
+  };
+};
+
+export default UserEntity;

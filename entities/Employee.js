@@ -1,21 +1,22 @@
+// entities/Employee.js
 import { EntitySchema } from "typeorm";
 
 // Enum for employment status
 export const EmploymentStatus = {
-  ACTIVE: "active",
-  ONBOARDING: "onboarding",
-  ON_LEAVE: "on_leave",
-  TERMINATED: "terminated",
-  SUSPENDED: "suspended"
+  ACTIVE: "Active",
+  ONBOARDING: "Onboarding",
+  ON_LEAVE: "On Leave",
+  TERMINATED: "Terminated",
+  SUSPENDED: "Suspended"
 };
 
 // Enum for employment type
 export const EmploymentType = {
-  FULL_TIME: "full_time",
-  PART_TIME: "part_time",
-  CONTRACT: "contract",
-  TEMPORARY: "temporary",
-  INTERN: "intern"
+  FULL_TIME: "Full Time",
+  PART_TIME: "Part Time",
+  CONTRACT: "Contract",
+  TEMPORARY: "Temporary",
+  INTERN: "Intern"
 };
 
 // Class definition for IntelliSense/typing
@@ -111,7 +112,10 @@ export const EmployeeEntity = new EntitySchema({
     },
     socialSecurityNumber: {
       type: "varchar",
-      nullable: true
+      nullable: true,
+      // We need to ensure this field is encrypted for HIPAA compliance
+      // Using the transformer pattern would be best
+      // This would be implemented in the real database implementation
     },
     emergencyContactName: {
       type: "varchar",
@@ -180,8 +184,7 @@ export const EmployeeEntity = new EntitySchema({
     }
   },
   relations: {
-    // Change relation property names to match column names
-    departmentId: {
+    department: {
       type: "many-to-one",
       target: "Department",
       joinColumn: {
@@ -189,7 +192,7 @@ export const EmployeeEntity = new EntitySchema({
       },
       nullable: true
     },
-    managerId: {
+    manager: {
       type: "many-to-one",
       target: "Employee",
       joinColumn: {
@@ -200,22 +203,65 @@ export const EmployeeEntity = new EntitySchema({
     attendanceRecords: {
       type: "one-to-many",
       target: "Attendance",
-      inverseSide: "employeeId"
+      inverseSide: "employee"
     },
     leaveRequests: {
       type: "one-to-many",
       target: "Leave",
-      inverseSide: "employeeId"
+      inverseSide: "employee"
     },
     complianceRecords: {
       type: "one-to-many",
       target: "Compliance",
-      inverseSide: "employeeId"
+      inverseSide: "employee"
     },
     documents: {
       type: "one-to-many",
       target: "Document",
-      inverseSide: "employeeId"
+      inverseSide: "employee"
     }
-  }
+  },
+  indices: [
+    {
+      name: "IDX_EMPLOYEE_EMAIL",
+      columns: ["email"]
+    },
+    {
+      name: "IDX_EMPLOYEE_DEPARTMENT",
+      columns: ["departmentId"]
+    },
+    {
+      name: "IDX_EMPLOYEE_STATUS",
+      columns: ["status"]
+    },
+    {
+      name: "IDX_EMPLOYEE_HIRE_DATE",
+      columns: ["hireDate"]
+    }
+  ]
 });
+
+// Helper function to get sensitive employee data with proper access control
+export const getSensitiveEmployeeData = (employee, userRole) => {
+  const { socialSecurityNumber, salary, ...basicData } = employee;
+  
+  // Only admin and HR roles should see sensitive data
+  if (userRole === 'Admin' || userRole === 'Manager') {
+    return employee;
+  }
+  
+  return basicData;
+};
+
+// Helper function to create a safe employee object (without sensitive data)
+export const createSafeEmployee = (employee) => {
+  if (!employee) return null;
+  
+  const { socialSecurityNumber, salary, hourlyRate, managerNotes, ...safeEmployee } = employee;
+  return {
+    ...safeEmployee,
+    fullName: `${employee.firstName} ${employee.lastName}`
+  };
+};
+
+export default EmployeeEntity;
