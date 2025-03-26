@@ -30,7 +30,7 @@ export default function OffboardingPage() {
     {
       id: 1,
       name: 'Michael Rodriguez',
-      position: 'IT Support Specialist',
+      position: 'IT Specialist',
       department: 'Information Technology',
       endDate: '2025-04-30',
       progress: 45,
@@ -39,8 +39,8 @@ export default function OffboardingPage() {
     {
       id: 2,
       name: 'Sandra Williams',
-      position: 'Medical Receptionist',
-      department: 'Cardiology',
+      position: 'Pharmacist',
+      department: 'Operations',
       endDate: '2025-04-15',
       progress: 70,
       exitType: 'Retirement'
@@ -48,8 +48,8 @@ export default function OffboardingPage() {
     {
       id: 3,
       name: 'James Thompson',
-      position: 'Billing Specialist',
-      department: 'Finance',
+      position: 'Pharmacy Technician',
+      department: 'Operations',
       endDate: '2025-05-01',
       progress: 25,
       exitType: 'Resignation'

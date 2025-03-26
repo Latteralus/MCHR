@@ -30,8 +30,8 @@ export default function OnboardingPage() {
     {
       id: 1,
       name: 'Jennifer Adams',
-      position: 'Registered Nurse',
-      department: 'Emergency',
+      position: 'Pharmacist',
+      department: 'Operations',
       startDate: '2025-04-15',
       progress: 65
     },
@@ -46,8 +46,8 @@ export default function OnboardingPage() {
     {
       id: 3,
       name: 'Emily Garcia',
-      position: 'Medical Assistant',
-      department: 'Pediatrics',
+      position: 'Project Manager',
+      department: 'Administration',
       startDate: '2025-03-30',
       progress: 95
     }

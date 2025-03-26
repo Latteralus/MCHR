@@ -116,10 +116,10 @@ export default function ReportsPage() {
                   </label>
                   <select className="w-full border-gray-300 rounded-md shadow-sm">
                     <option value="">All Departments</option>
-                    <option>Nursing</option>
                     <option>Administration</option>
-                    <option>Radiology</option>
-                    <option>Pediatrics</option>
+                    <option>Operations</option>
+                    <option>Finance</option>
+                    <option>Wellness</option>
                   </select>
                 </div>
                 <div>
