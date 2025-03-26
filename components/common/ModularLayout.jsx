@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import Head from 'next/head';
+import Header from './Header';
 import Sidebar from './Sidebar';
 
-const Layout = ({ children }) => {
+const ModularLayout = ({ children }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const isLoading = status === 'loading';
@@ -42,12 +42,6 @@ const Layout = ({ children }) => {
     return null;
   }
 
-  // Handle signout
-  const handleSignOut = async () => {
-    await signOut({ redirect: false });
-    router.push('/login');
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <Head>
@@ -58,35 +52,8 @@ const Layout = ({ children }) => {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
 
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <Link href="/" legacyBehavior>
-              <a className="text-primary font-bold text-xl">Mountain Care HR</a>
-            </Link>
-          </div>
-          
-          <div className="flex items-center">
-            {session && (
-              <div className="flex items-center">
-                <span className="mr-4 text-sm text-gray-700">
-                  {session.user.name || session.user.email}
-                </span>
-                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
-                  {/* Display initials if no avatar */}
-                  {session.user.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-                <button 
-                  onClick={handleSignOut}
-                  className="ml-4 text-sm text-gray-600 hover:text-gray-900"
-                >
-                  Sign out
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* Header Component */}
+      <Header session={session} />
 
       <div className="flex flex-1">
         {/* Sidebar Component */}
@@ -126,4 +93,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default Layout;
+export default ModularLayout;
