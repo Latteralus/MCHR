@@ -1,8 +1,9 @@
-mountain-care/
+MCHR/
 ├── components/
 │   ├── common/
 │   │   ├── Layout.jsx               // General layout (header, sidebar)
-│   │   └── Navbar.jsx               // Top navigation bar
+│   │   ├── Navbar.jsx               // Top navigation bar
+│   │   └── Sidebar.jsx               // Sidebar component
 │   ├── auth/
 │   │   └── AuthProvider.jsx         // React Context for session data
 │   ├── dashboard/
@@ -50,8 +51,8 @@ mountain-care/
 │   ├── employees/
 │   │   ├── index.js                 // Employee management overview
 │   │   ├── [id].js                  // Individual employee profile
-│   │   ├── new.js                   // Create new employee
-│   │   └── [id]/edit.js             // Edit employee
+│   │   └── new.js                   // Create new employee
+│   │   └── [id]/edit.js              // Edit employee page
 │   ├── attendance/                  // NEW SECTION
 │   │   ├── index.js                 // Attendance management page
 │   │   └── [id].js                  // Edit attendance record
@@ -84,5 +85,5 @@ mountain-care/
 ├── tsconfig.json                    // TypeScript configuration
 ├── next.config.js
 ├── package.json
-├── Checklist.md                     // Updated project checklist
+├── DevDocuments/Checklist.md                     // Updated project checklist
 └── README.md                        // Setup and development instructions
