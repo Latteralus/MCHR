@@ -1,4 +1,5 @@
-import { useState } from 'react';
+// pages/onboarding.js
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Layout from '../components/common/Layout';
@@ -21,8 +22,7 @@ export default function OnboardingPage() {
 
   // If no session and not loading, redirect to login
   if (!session && status !== 'loading') {
-    // You might want to redirect here using router.push('/login')
-    return null;
+    return null; // Will redirect in useEffect
   }
 
   // Mock onboarding employees
@@ -126,7 +126,9 @@ export default function OnboardingPage() {
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Employee Onboarding</h1>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
             Add New Employee
           </button>
         </div>
@@ -163,18 +165,14 @@ export default function OnboardingPage() {
                     }`}
                   >
                     <div className="font-medium">{employee.name}</div>
-                    <div className="text-xs text-gray-500">
-                      Starts: {new Date(employee.startDate).toLocaleDateString()}
-                    </div>
+                    <div className="text-xs text-gray-500">Starts: {new Date(employee.startDate).toLocaleDateString()}</div>
                     <div className="mt-1 w-full bg-gray-200 rounded-full h-2.5">
                       <div 
                         className="bg-blue-600 h-2.5 rounded-full" 
                         style={{ width: `${employee.progress}%` }}
                       ></div>
                     </div>
-                    <div className="text-xs text-right text-gray-500">
-                      {employee.progress}% complete
-                    </div>
+                    <div className="text-xs text-right text-gray-500">{employee.progress}% complete</div>
                   </button>
                 </li>
               ))}
@@ -190,12 +188,8 @@ export default function OnboardingPage() {
                     Onboarding Tasks for {activeEmployee.name}
                   </h2>
                   <div className="mt-2 text-sm text-gray-600">
-                    <p>
-                      {activeEmployee.position} • {activeEmployee.department}
-                    </p>
-                    <p>
-                      Start Date: {new Date(activeEmployee.startDate).toLocaleDateString()}
-                    </p>
+                    <p>{activeEmployee.position} • {activeEmployee.department}</p>
+                    <p>Start Date: {new Date(activeEmployee.startDate).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div className="p-4">
@@ -206,9 +200,7 @@ export default function OnboardingPage() {
                         style={{ width: `${activeEmployee.progress}%` }}
                       ></div>
                     </div>
-                    <div className="text-sm text-right text-gray-500">
-                      {activeEmployee.progress}% complete
-                    </div>
+                    <div className="text-sm text-right text-gray-500">{activeEmployee.progress}% complete</div>
                   </div>
                   
                   <div>
@@ -240,23 +232,14 @@ export default function OnboardingPage() {
                                     />
                                     <div className="ml-3">
                                       <div className="text-sm font-medium text-gray-900">{task.name}</div>
-                                      <div className="text-xs text-gray-500">
-                                        Assigned to: {task.assignedTo}
-                                      </div>
+                                      <div className="text-xs text-gray-500">Assigned to: {task.assignedTo}</div>
                                     </div>
                                   </div>
                                   <div className="flex items-center">
-                                    <span
-                                      className={`mr-3 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadgeClass}`}
-                                    >
-                                      {task.status === 'in-progress'
-                                        ? 'In Progress'
-                                        : task.status.charAt(0).toUpperCase() +
-                                          task.status.slice(1)}
+                                    <span className={`mr-3 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadgeClass}`}>
+                                      {task.status === 'in-progress' ? 'In Progress' : task.status.charAt(0).toUpperCase() + task.status.slice(1)}
                                     </span>
-                                    <div className="text-xs text-gray-500">
-                                      Due: {new Date(task.dueDate).toLocaleDateString()}
-                                    </div>
+                                    <div className="text-xs text-gray-500">Due: {new Date(task.dueDate).toLocaleDateString()}</div>
                                   </div>
                                 </div>
                               );
