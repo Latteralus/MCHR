@@ -11,11 +11,46 @@ import {
   getDay,
   isWeekend
 } from 'date-fns';
+import { api, apiEndpoints } from '../utils/api';
 
 const AttendanceCalendar = ({ attendanceRecords, employeeId, onDateClick }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [calendarDays, setCalendarDays] = useState([]);
+  const [leaveRequests, setLeaveRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch approved leave requests for the selected employee
+  useEffect(() => {
+    const fetchLeaveRequests = async () => {
+      if (!employeeId) return;
+      
+      setIsLoading(true);
+      try {
+        // Fetch approved leave for this employee
+        const params = {
+          employeeId: employeeId,
+          status: 'approved',
+          // Adding month boundaries to filter leave requests more efficiently
+          startDate: format(startOfMonth(currentMonth), 'yyyy-MM-dd'),
+          endDate: format(endOfMonth(currentMonth), 'yyyy-MM-dd')
+        };
+
+        const queryString = api.buildQueryParams(params);
+        const response = await api.get(`${apiEndpoints.leave.base}${queryString}`);
+        
+        if (Array.isArray(response)) {
+          setLeaveRequests(response);
+        }
+      } catch (error) {
+        console.error('Error fetching leave requests:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLeaveRequests();
+  }, [employeeId, currentMonth]);
 
   // Generate calendar days for the current month
   useEffect(() => {
@@ -40,19 +75,38 @@ const AttendanceCalendar = ({ attendanceRecords, employeeId, onDateClick }) => {
         isSameDay(new Date(record.date), date)
       );
       
+      // Check if this day has an approved leave request
+      const leaveForDay = findLeaveForDate(date);
+      
       return {
         date,
         isToday: isSameDay(date, new Date()),
         isCurrentMonth: isSameMonth(date, currentMonth),
         isWeekend: isWeekend(date),
         attendanceRecord: recordForDay || null,
+        leaveRequest: leaveForDay || null,
         key: format(date, 'yyyy-MM-dd')
       };
     });
     
     // Combine blank days and actual days
     setCalendarDays([...blankDaysAtStart, ...daysWithInfo]);
-  }, [currentMonth, attendanceRecords]);
+  }, [currentMonth, attendanceRecords, leaveRequests]);
+
+  // Helper to find leave requests for a specific date
+  const findLeaveForDate = (date) => {
+    return leaveRequests.find(leave => {
+      const startDate = new Date(leave.startDate);
+      const endDate = new Date(leave.endDate);
+      // Set time to 0 for date comparison
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+      date.setHours(0, 0, 0, 0);
+      
+      // Check if date falls within the leave period
+      return date >= startDate && date <= endDate;
+    });
+  };
 
   // Navigate to previous month
   const prevMonth = () => {
@@ -69,13 +123,36 @@ const AttendanceCalendar = ({ attendanceRecords, employeeId, onDateClick }) => {
     if (day.date) {
       setSelectedDate(day.date);
       if (onDateClick) {
-        onDateClick(day.date, day.attendanceRecord);
+        onDateClick(day.date, day.attendanceRecord, day.leaveRequest);
       }
     }
   };
 
-  // Get status color for a day based on attendance record
+  // Get status color for a day based on attendance record and leave request
   const getStatusColor = (day) => {
+    // If there's a leave request, prioritize it
+    if (day.leaveRequest) {
+      switch (day.leaveRequest.leaveType.toLowerCase()) {
+        case 'vacation':
+        case 'annual':
+          return 'bg-indigo-100 border-indigo-400';
+        case 'sick':
+        case 'sick leave':
+          return 'bg-amber-100 border-amber-400';
+        case 'personal':
+          return 'bg-teal-100 border-teal-400';
+        case 'bereavement':
+          return 'bg-gray-100 border-gray-400';
+        case 'maternity':
+        case 'paternity':
+        case 'maternity/paternity':
+          return 'bg-pink-100 border-pink-400';
+        default:
+          return 'bg-violet-100 border-violet-400';
+      }
+    }
+    
+    // Otherwise, use attendance status
     if (!day.attendanceRecord) return '';
     
     switch (day.attendanceRecord.status) {
@@ -122,6 +199,12 @@ const AttendanceCalendar = ({ attendanceRecords, employeeId, onDateClick }) => {
         </div>
       </div>
       
+      {isLoading && (
+        <div className="text-center py-2 text-gray-500">
+          Loading leave data...
+        </div>
+      )}
+      
       {/* Calendar grid */}
       <div className="grid grid-cols-7 gap-2">
         {/* Day names */}
@@ -156,6 +239,14 @@ const AttendanceCalendar = ({ attendanceRecords, employeeId, onDateClick }) => {
                   </span>
                 </div>
                 
+                {/* Leave request badge */}
+                {day.leaveRequest && (
+                  <div className="absolute top-1 left-1">
+                    <span className="inline-block w-3 h-3 rounded-full bg-indigo-500" title={`${day.leaveRequest.leaveType}`}></span>
+                  </div>
+                )}
+                
+                {/* Attendance information */}
                 {day.attendanceRecord && (
                   <div className="mt-2 text-xs">
                     <div className="font-medium text-gray-700">
@@ -175,13 +266,31 @@ const AttendanceCalendar = ({ attendanceRecords, employeeId, onDateClick }) => {
                     )}
                   </div>
                 )}
+                
+                {/* Leave information */}
+                {day.leaveRequest && (
+                  <div className="mt-2 text-xs">
+                    <div className="font-medium text-indigo-700">
+                      {day.leaveRequest.leaveType.charAt(0).toUpperCase() + day.leaveRequest.leaveType.slice(1)}
+                    </div>
+                    
+                    {/* Show if it's first or last day of leave */}
+                    {isSameDay(new Date(day.leaveRequest.startDate), day.date) && (
+                      <div className="text-gray-600">First day</div>
+                    )}
+                    
+                    {isSameDay(new Date(day.leaveRequest.endDate), day.date) && (
+                      <div className="text-gray-600">Last day</div>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </div>
         ))}
       </div>
       
-      {/* Legend */}
+      {/* Updated Legend to include leave types */}
       <div className="mt-6 flex flex-wrap gap-4">
         <div className="flex items-center">
           <div className="w-4 h-4 bg-green-100 border border-green-400 rounded mr-2"></div>
@@ -206,6 +315,22 @@ const AttendanceCalendar = ({ attendanceRecords, employeeId, onDateClick }) => {
         <div className="flex items-center">
           <div className="w-4 h-4 bg-purple-100 border border-purple-400 rounded mr-2"></div>
           <span className="text-sm">Remote</span>
+        </div>
+        
+        {/* Leave types */}
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-indigo-100 border border-indigo-400 rounded mr-2"></div>
+          <span className="text-sm">Vacation</span>
+        </div>
+        
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-amber-100 border border-amber-400 rounded mr-2"></div>
+          <span className="text-sm">Sick Leave</span>
+        </div>
+        
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-teal-100 border border-teal-400 rounded mr-2"></div>
+          <span className="text-sm">Personal Leave</span>
         </div>
       </div>
     </div>

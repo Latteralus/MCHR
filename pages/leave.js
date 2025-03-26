@@ -1,256 +1,234 @@
-// pages/leave.js
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
-import Layout from '../components/common/Layout';
+// pages/api/leave/index.js
+import { AppDataSource } from "../../../utils/db";
+import Leave from "../../../entities/Leave";
+import Employee from "../../../entities/Employee";
+import { apiHandler } from "../../../utils/apiHandler";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
+import leaveAttendanceService from "../../../utils/leaveAttendanceService";
 
-export default function LeavePage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState('pending');
-  
-  // If loading session, show simple loading indicator
-  if (status === 'loading') {
-    return (
-      <Layout>
-        <div className="flex justify-center items-center h-64">
-          <p className="text-gray-500">Loading session...</p>
-        </div>
-      </Layout>
-    );
-  }
-
-  // If no session and not loading, redirect to login
-  if (!session && status !== 'loading') {
-    return null; // Will redirect in useEffect
-  }
-
-  // Mock data for leave requests
-  const leaveRequests = [
-    {
-      id: 1,
-      employee: 'Sarah Johnson',
-      department: 'Pharmacy',
-      type: 'Sick Leave',
-      startDate: '2025-04-01',
-      endDate: '2025-04-03',
-      status: 'pending',
-      reason: 'Medical appointment and recovery'
-    },
-    {
-      id: 2,
-      employee: 'Michael Chen',
-      department: 'Administration',
-      type: 'Vacation',
-      startDate: '2025-04-15',
-      endDate: '2025-04-22',
-      status: 'approved',
-      reason: 'Family vacation'
-    },
-    {
-      id: 3,
-      employee: 'David Wilson',
-      department: 'Wellness',
-      type: 'Personal',
-      startDate: '2025-04-10',
-      endDate: '2025-04-10',
-      status: 'denied',
-      reason: 'Family event'
-    },
-    {
-      id: 4,
-      employee: 'Lisa Rodriguez',
-      department: 'CRM',
-      type: 'Sick Leave',
-      startDate: '2025-04-05',
-      endDate: '2025-04-06',
-      status: 'pending',
-      reason: 'Not feeling well'
+export default apiHandler({
+  GET: async (req, res) => {
+    const session = await getServerSession(req, res, authOptions);
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-  ];
 
-  // Filter leave requests based on active tab
-  const filteredRequests = leaveRequests.filter(request => 
-    activeTab === 'all' || request.status === activeTab
-  );
-
-  return (
-    <Layout>
-      <div className="container mx-auto py-6 px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Leave Management</h1>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-          >
-            Request Leave
-          </button>
-        </div>
-
-        {/* Dashboard Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm text-gray-500 uppercase">Available Balance</h3>
-            <p className="text-2xl font-bold text-blue-600">14 days</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm text-gray-500 uppercase">Pending Requests</h3>
-            <p className="text-2xl font-bold text-yellow-600">2</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm text-gray-500 uppercase">Approved</h3>
-            <p className="text-2xl font-bold text-green-600">8</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm text-gray-500 uppercase">Used This Year</h3>
-            <p className="text-2xl font-bold text-gray-600">6 days</p>
-          </div>
-        </div>
-
-        {/* Tabs for filtering */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'all'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              All Requests
-            </button>
-            <button
-              onClick={() => setActiveTab('pending')}
-              className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'pending'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Pending
-            </button>
-            <button
-              onClick={() => setActiveTab('approved')}
-              className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'approved'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Approved
-            </button>
-            <button
-              onClick={() => setActiveTab('denied')}
-              className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'denied'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Denied
-            </button>
-          </nav>
-        </div>
-
-        {/* Leave Requests Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Employee
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dates
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Duration
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredRequests.length > 0 ? (
-                filteredRequests.map((request) => {
-                  // Calculate duration in days
-                  const start = new Date(request.startDate);
-                  const end = new Date(request.endDate);
-                  const diffTime = Math.abs(end - start);
-                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                  
-                  // Status badge color
-                  let statusBadgeClass = '';
-                  if (request.status === 'approved') {
-                    statusBadgeClass = 'bg-green-100 text-green-800';
-                  } else if (request.status === 'denied') {
-                    statusBadgeClass = 'bg-red-100 text-red-800';
-                  } else {
-                    statusBadgeClass = 'bg-yellow-100 text-yellow-800';
-                  }
-                  
-                  return (
-                    <tr key={request.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{request.employee}</div>
-                            <div className="text-sm text-gray-500">{request.department}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{request.type}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {new Date(request.startDate).toLocaleDateString()} - {new Date(request.endDate).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {diffDays} day{diffDays !== 1 ? 's' : ''}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadgeClass}`}>
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                        {request.status === 'pending' && (
-                          <>
-                            <button className="text-green-600 hover:text-green-900 mr-3">Approve</button>
-                            <button className="text-red-600 hover:text-red-900">Deny</button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
-                    No leave requests found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-          <p className="text-sm text-blue-800">
-            This is a placeholder page. In the full implementation, you would be able to request leave, approve/deny requests, and view leave history.
-          </p>
-        </div>
-      </div>
-    </Layout>
-  );
-}
+    try {
+      const leaveRepository = AppDataSource.getRepository(Leave);
+      
+      // Process query parameters
+      const { 
+        status, 
+        startDate, 
+        endDate, 
+        leaveType, 
+        employeeId, 
+        departmentId,
+        limit,
+        offset
+      } = req.query;
+      
+      // Build query based on permissions and filters
+      let queryBuilder = leaveRepository.createQueryBuilder("leave")
+        .leftJoinAndSelect("leave.employee", "employee")
+        .leftJoinAndSelect("employee.department", "department")
+        .leftJoinAndSelect("leave.approver", "approver");
+      
+      // Apply role-based restrictions
+      if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
+        if (session.user.role === 'department_manager') {
+          queryBuilder.where("department.id = :departmentId", { 
+            departmentId: session.user.departmentId 
+          });
+        } else {
+          // Regular employees can only see their own leave requests
+          queryBuilder.where("employee.id = :employeeId", { 
+            employeeId: session.user.employeeId 
+          });
+        }
+      }
+      
+      // Apply filters
+      if (status) {
+        queryBuilder.andWhere("leave.status = :status", { status });
+      }
+      
+      if (startDate) {
+        const parsedStartDate = new Date(startDate);
+        queryBuilder.andWhere("leave.startDate >= :startDate", { startDate: parsedStartDate });
+      }
+      
+      if (endDate) {
+        const parsedEndDate = new Date(endDate);
+        queryBuilder.andWhere("leave.endDate <= :endDate", { endDate: parsedEndDate });
+      }
+      
+      if (leaveType) {
+        queryBuilder.andWhere("leave.leaveType = :leaveType", { leaveType });
+      }
+      
+      if (employeeId && (session.user.role === 'admin' || session.user.role === 'hr_manager' || 
+          (session.user.role === 'department_manager' && session.user.departmentId))) {
+        queryBuilder.andWhere("employee.id = :employeeId", { employeeId });
+      }
+      
+      if (departmentId && (session.user.role === 'admin' || session.user.role === 'hr_manager')) {
+        queryBuilder.andWhere("department.id = :departmentId", { departmentId });
+      }
+      
+      // Add pagination if specified
+      if (limit) {
+        queryBuilder.take(parseInt(limit));
+      }
+      
+      if (offset) {
+        queryBuilder.skip(parseInt(offset));
+      }
+      
+      // Order by start date (most recent first)
+      queryBuilder.orderBy("leave.startDate", "DESC");
+      
+      // Execute query
+      const leaveRequests = await queryBuilder.getMany();
+      
+      return res.status(200).json(leaveRequests);
+    } catch (error) {
+      console.error("Error fetching leave requests:", error);
+      return res.status(500).json({ message: "Failed to fetch leave requests" });
+    }
+  },
+  
+  POST: async (req, res) => {
+    const session = await getServerSession(req, res, authOptions);
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const leaveRepository = AppDataSource.getRepository(Leave);
+      const employeeRepository = AppDataSource.getRepository(Employee);
+      
+      const leaveData = req.body;
+      
+      // Check if the requesting user has permission to create a leave request for the specified employee
+      let targetEmployeeId = leaveData.employeeId;
+      
+      // If no employeeId provided and user is an employee, use their own ID
+      if (!targetEmployeeId && session.user.employeeId) {
+        targetEmployeeId = session.user.employeeId;
+        leaveData.employeeId = targetEmployeeId;
+      }
+      
+      // Verify permission to create leave request for this employee
+      if (session.user.role !== 'admin' && session.user.role !== 'hr_manager') {
+        if (session.user.role === 'department_manager') {
+          // Department managers can create leave for employees in their department
+          const employee = await employeeRepository.findOne({
+            where: { id: targetEmployeeId },
+            relations: ['department']
+          });
+          
+          if (!employee || employee.department.id !== session.user.departmentId) {
+            return res.status(403).json({ 
+              message: "Forbidden - Cannot create leave requests for employees outside your department" 
+            });
+          }
+        } else if (targetEmployeeId !== session.user.employeeId) {
+          // Regular employees can only create leave for themselves
+          return res.status(403).json({ 
+            message: "Forbidden - Cannot create leave requests for other employees" 
+          });
+        }
+      }
+      
+      // Check for required fields
+      if (!leaveData.startDate || !leaveData.endDate || !leaveData.leaveType) {
+        return res.status(400).json({ message: "Start date, end date, and leave type are required" });
+      }
+      
+      // Validate date range
+      const startDate = new Date(leaveData.startDate);
+      const endDate = new Date(leaveData.endDate);
+      
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return res.status(400).json({ message: "Invalid date format" });
+      }
+      
+      if (startDate > endDate) {
+        return res.status(400).json({ message: "End date cannot be before start date" });
+      }
+      
+      // Check for attendance conflicts
+      const { hasConflict, conflictingRecords } = await leaveAttendanceService.checkAttendanceConflicts(
+        targetEmployeeId,
+        startDate,
+        endDate
+      );
+      
+      if (hasConflict) {
+        return res.status(409).json({
+          message: "Cannot create leave request - conflicts with existing attendance records",
+          conflicts: conflictingRecords
+        });
+      }
+      
+      // Check for overlapping leave requests
+      const overlappingLeave = await leaveRepository
+        .createQueryBuilder('leave')
+        .where('leave.employee.id = :employeeId', { employeeId: targetEmployeeId })
+        .andWhere('leave.status IN (:...statuses)', { statuses: ['pending', 'approved'] })
+        .andWhere(
+          '(leave.startDate <= :endDate AND leave.endDate >= :startDate)',
+          { startDate, endDate }
+        )
+        .getOne();
+      
+      if (overlappingLeave) {
+        return res.status(409).json({
+          message: "Cannot create leave request - overlaps with existing leave request",
+          conflict: overlappingLeave
+        });
+      }
+      
+      // Set initial status to 'pending' if not provided
+      if (!leaveData.status) {
+        leaveData.status = 'pending';
+      }
+      
+      // Set request date to now
+      leaveData.requestDate = new Date();
+      
+      // Create new leave request
+      const newLeaveRequest = leaveRepository.create({
+        employee: { id: targetEmployeeId },
+        leaveType: leaveData.leaveType,
+        startDate: startDate,
+        endDate: endDate,
+        status: leaveData.status,
+        reason: leaveData.reason || '',
+        requestDate: leaveData.requestDate,
+        approver: leaveData.approverId ? { id: leaveData.approverId } : null,
+        approvalDate: leaveData.approvalDate || null,
+        notes: leaveData.notes || ''
+      });
+      
+      const savedLeaveRequest = await leaveRepository.save(newLeaveRequest);
+      
+      // If the leave request is created as approved, create attendance records
+      if (savedLeaveRequest.status === 'approved') {
+        try {
+          await leaveAttendanceService.syncAttendanceWithLeave(savedLeaveRequest.id);
+        } catch (syncError) {
+          console.error("Error syncing attendance with leave:", syncError);
+          // Continue with the response even if sync fails, but log the error
+        }
+      }
+      
+      return res.status(201).json(savedLeaveRequest);
+    } catch (error) {
+      console.error("Error creating leave request:", error);
+      return res.status(500).json({ message: "Failed to create leave request", error: error.message });
+    }
+  }
+});

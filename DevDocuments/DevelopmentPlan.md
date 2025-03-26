@@ -25,7 +25,7 @@ This document outlines a comprehensive, step-by-step plan for developing the Mou
 
 ### 1.2 Database Setup
 - [ ] Set up PostgreSQL database locally
-- [ ] Create ormconfig.ts with TypeORM configuration:
+- [x] Create ormconfig.ts with TypeORM configuration:
   ```typescript
   import { DataSource } from "typeorm";
   import path from "path";
@@ -43,74 +43,74 @@ This document outlines a comprehensive, step-by-step plan for developing the Mou
 - [ ] Create database migration helper script in utils/db.ts
 
 ### 1.3 Authentication System
-- [ ] Implement NextAuth.js configuration in pages/api/auth/[...nextauth].js
-- [ ] Create User entity in entities/User.ts with proper RBAC fields
-- [ ] Create login page at pages/login.js
-- [ ] Implement AuthProvider in components/auth/AuthProvider.jsx
-- [ ] Add session handling to _app.js
+- [x] Implement NextAuth.js configuration in pages/api/auth/[...nextauth].js
+- [x] Create User entity in entities/User.ts with proper RBAC fields
+- [x] Create login page at pages/login.js
+- [x] Implement AuthProvider in components/auth/AuthProvider.jsx
+- [x] Add session handling to _app.js
 
 ## Phase 2: Core Entity Models & API Routes (Week 2)
 
 ### 2.1 Entity Models
-- [ ] Define Employee entity (entities/Employee.ts)
-- [ ] Define Department entity (entities/Department.ts)
-- [ ] Define Attendance entity (entities/Attendance.ts)
-- [ ] Define Leave entity (entities/Leave.ts)
-- [ ] Define Compliance entity (entities/Compliance.ts)
-- [ ] Define Document entity (entities/Document.ts)
-- [ ] Create TypeORM relationships between entities
-- [ ] Generate initial migration
+- [x] Define Employee entity (entities/Employee.ts)
+- [x] Define Department entity (entities/Department.ts)
+- [x] Define Attendance entity (entities/Attendance.ts)
+- [x] Define Leave entity (entities/Leave.ts)
+- [x] Define Compliance entity (entities/Compliance.ts)
+- [x] Define Document entity (entities/Document.ts)
+- [x] Create TypeORM relationships between entities
+- [x] Generate initial migration
 
 ### 2.2 API Routes Implementation
-- [ ] Create employees API routes:
-  - [ ] pages/api/employees/index.js (GET, POST)
-  - [ ] pages/api/employees/[id].js (GET, PUT, DELETE)
-- [ ] Create departments API route (pages/api/departments)
-- [ ] Create attendance API route (pages/api/attendance)
-- [ ] Create leave management API route (pages/api/leave)
-- [ ] Create compliance API route (pages/api/compliance)
-- [ ] Create documents API route (pages/api/documents)
+- [x] Create employees API routes:
+  - [x] pages/api/employees/index.js (GET, POST)
+  - [x] pages/api/employees/[id].js (GET, PUT, DELETE)
+- [x] Create departments API route (pages/api/departments)
+- [x] Create attendance API route (pages/api/attendance)
+- [x] Create leave management API route (pages/api/leave)
+- [x] Create compliance API route (pages/api/compliance)
+- [x] Create documents API route (pages/api/documents)
 - [ ] Implement middleware for authentication and role-based access control
 
 ### 2.3 API Utility Functions
-- [ ] Create utils/api.js for common fetch operations
-- [ ] Implement error handling for API requests
-- [ ] Add TypeORM connection management
+- [x] Create utils/api.js for common fetch operations
+- [x] Implement error handling for API requests
+- [x] Add TypeORM connection management
 
 ## Phase 3: Employee Management Module (Week 3)
 
 ### 3.1 Employee List Component
-- [ ] Create or update components/employee/EmployeeList.jsx
-- [ ] Add pagination, sorting, and filtering capabilities
-- [ ] Implement department-based filtering based on user role
-- [ ] Create pages/employees/index.js to use the EmployeeList component
+- [x] Create or update components/employee/EmployeeList.jsx
+- [x] Add pagination, sorting, and filtering capabilities
+- [x] Implement department-based filtering based on user role
+- [x] Create pages/employees/index.js to use the EmployeeList component
 
 ### 3.2 Employee Profile Component
-- [ ] Create components/employee/EmployeeProfile.jsx
-- [ ] Include personal info, department, position, and hire date sections
-- [ ] Add access control based on user roles
-- [ ] Create pages/employees/[id].js to display employee details
+- [x] Create components/employee/EmployeeProfile.jsx
+- [x] Include personal info, department, position, and hire date sections
+- [x] Add access control based on user roles
+- [x] Create pages/employees/[id].js to display employee details
 
 ### 3.3 Employee Form Component
-- [ ] Create components/employee/EmployeeForm.jsx for adding/editing employees
-- [ ] Implement form validation with react-hook-form
-- [ ] Add department selection dropdown
-- [ ] Create pages/employees/new.js for adding new employees
+- [x] Create components/employee/EmployeeForm.jsx for adding/editing employees
+- [x] Implement form validation with react-hook-form
+- [x] Add department selection dropdown
+- [x] Create pages/employees/new.js for adding new employees
 
 ## Phase 4: Attendance & Leave Management (Week 4)
 
 ### 4.1 Attendance Module
-- [ ] Create components/attendance/AttendanceLog.jsx
-- [ ] Implement calendar view for attendance data
-- [ ] Add daily time log entry UI
-- [ ] Create pages/attendance.js
+- [x] Create components/attendance/AttendanceLog.jsx
+- [x] Implement calendar view for attendance data
+- [x] Add daily time log entry UI
+- [x] Create pages/attendance.js
 
 ### 4.2 Leave Management Module
-- [ ] Create components/leave/LeaveRequestForm.jsx
-- [ ] Create components/leave/LeaveList.jsx
-- [ ] Create components/leave/LeaveCalendar.jsx with conflict detection
-- [ ] Implement approval workflow for managers
-- [ ] Create pages/leave.js
+- [x] Create components/leave/LeaveRequestForm.jsx
+- [x] Create components/leave/LeaveList.jsx
+- [x] Create components/leave/LeaveCalendar.jsx with conflict detection
+- [x] Implement approval workflow for managers
+- [x] Create pages/leave.js
 
 ### 4.3 Integration Between Attendance & Leave
 - [ ] Ensure leave requests reflect in attendance records

@@ -1,9 +1,11 @@
+// pages/api/leave/[id].js
 import { AppDataSource } from "../../../utils/db";
 import Leave from "../../../entities/Leave";
 import Employee from "../../../entities/Employee";
 import { apiHandler } from "../../../utils/apiHandler";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
+import leaveAttendanceService from "../../../utils/leaveAttendanceService";
 
 export default apiHandler({
   GET: async (req, res) => {
@@ -104,9 +106,57 @@ export default apiHandler({
         req.body.approverName = session.user.name;
       }
       
+      // Handle date changes - check for attendance conflicts
+      if ((req.body.startDate && req.body.startDate !== leaveRequest.startDate) || 
+          (req.body.endDate && req.body.endDate !== leaveRequest.endDate)) {
+        
+        const startDate = req.body.startDate || leaveRequest.startDate;
+        const endDate = req.body.endDate || leaveRequest.endDate;
+        
+        // Check for conflicts with existing attendance records
+        const { hasConflict, conflictingRecords } = await leaveAttendanceService.checkAttendanceConflicts(
+          leaveRequest.employee.id,
+          startDate,
+          endDate
+        );
+        
+        if (hasConflict) {
+          return res.status(409).json({
+            message: "Cannot update leave request - conflicts with existing attendance records",
+            conflicts: conflictingRecords
+          });
+        }
+      }
+      
       // Update leave request
       leaveRepository.merge(leaveRequest, req.body);
       const updatedLeaveRequest = await leaveRepository.save(leaveRequest);
+      
+      // If leave request was approved, create attendance records
+      if (isStatusChange && req.body.status === 'approved') {
+        try {
+          await leaveAttendanceService.syncAttendanceWithLeave(updatedLeaveRequest.id);
+        } catch (syncError) {
+          console.error("Error syncing attendance with leave:", syncError);
+          // Continue with the response even if sync fails, but log the error
+        }
+      }
+      
+      // If leave request was changed from approved to rejected or canceled, remove attendance records
+      if (isStatusChange && leaveRequest.status === 'approved' && 
+         (req.body.status === 'rejected' || req.body.status === 'canceled')) {
+        try {
+          await leaveAttendanceService.removeAttendanceForLeave(
+            updatedLeaveRequest.id,
+            leaveRequest.employee.id,
+            leaveRequest.startDate,
+            leaveRequest.endDate
+          );
+        } catch (removeError) {
+          console.error("Error removing attendance for rejected/canceled leave:", removeError);
+          // Continue with the response even if removal fails, but log the error
+        }
+      }
       
       return res.status(200).json(updatedLeaveRequest);
     } catch (error) {
@@ -155,6 +205,21 @@ export default apiHandler({
         }
       } else if (!isAdminOrHR && !isDepartmentManager) {
         return res.status(403).json({ message: "Forbidden - Insufficient permissions to delete this leave request" });
+      }
+      
+      // If the leave request was approved, remove associated attendance records
+      if (leaveRequest.status === 'approved') {
+        try {
+          await leaveAttendanceService.removeAttendanceForLeave(
+            leaveRequest.id,
+            leaveRequest.employee.id,
+            leaveRequest.startDate,
+            leaveRequest.endDate
+          );
+        } catch (removeError) {
+          console.error("Error removing attendance for deleted leave:", removeError);
+          // Continue with the deletion even if removal fails, but log the error
+        }
       }
       
       // Create log of deletion for audit purposes
