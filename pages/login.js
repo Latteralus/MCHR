@@ -7,7 +7,7 @@ import styles from '../styles/Login.module.css';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   const [error, setError] = useState('');
@@ -33,8 +33,8 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!credentials.email || !credentials.password) {
-      setError('Please enter both username/email and password');
+    if (!credentials.username || !credentials.password) {
+      setError('Please enter both username and password');
       return;
     }
     
@@ -43,16 +43,17 @@ export default function Login() {
       setError('');
       
       // For testing, allow hardcoded user
-      if (credentials.email === 'FCalkins' && credentials.password === 'password') {
+      if (credentials.username === 'FCalkins' && credentials.password === 'password') {
         // Use hardcoded credentials with NextAuth
         const result = await signIn('credentials', {
           redirect: false,
-          email: 'fcalkins@mountaincare.example',
+          username: 'FCalkins',
           password: 'password'
         });
         
         if (result.error) {
-          setError('Authentication failed. Please check your credentials.');
+          setError(result.error || 'Authentication failed. Please check your credentials.');
+          console.error('Auth error:', result);
         } else {
           router.push('/');
         }
@@ -60,12 +61,13 @@ export default function Login() {
         // Regular authentication flow
         const result = await signIn('credentials', {
           redirect: false,
-          email: credentials.email,
+          username: credentials.username,
           password: credentials.password
         });
         
         if (result.error) {
-          setError('Authentication failed. Please check your credentials.');
+          setError(result.error || 'Authentication failed. Please check your credentials.');
+          console.error('Auth error:', result);
         } else {
           router.push('/');
         }
@@ -121,15 +123,15 @@ export default function Login() {
           
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.formLabel}>Username or Email</label>
+              <label htmlFor="username" className={styles.formLabel}>Username</label>
               <input
-                id="email"
-                name="email"
+                id="username"
+                name="username"
                 type="text"
-                value={credentials.email}
+                value={credentials.username}
                 onChange={handleChange}
                 className={styles.formControl}
-                placeholder="Username or Email"
+                placeholder="Username"
                 required
               />
             </div>

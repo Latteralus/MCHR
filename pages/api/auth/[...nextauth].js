@@ -1,121 +1,118 @@
 // pages/api/auth/[...nextauth].js
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { AppDataSource } from "../../../utils/db";
-import User from "../../../entities/User";
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
+import { AppDataSource } from '../../../ormconfig';
+import User from '../../../entities/User';
 
-// Hardcoded test user for development
-const testUsers = [
-  {
-    id: "test-user-1",
-    email: "fcalkins@mountaincare.example",
-    name: "Frank Calkins",
-    passwordHash: "password", // In production, use proper hashing
-    role: "admin",
-    departmentId: "dept-1"
+// Initialize database connection
+const initializeDb = async () => {
+  try {
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+      console.log('Database connection initialized');
+    }
+  } catch (error) {
+    console.error('Database initialization error:', error);
+    throw new Error('Failed to connect to database');
   }
-];
+};
 
-export const authOptions = {
+export default NextAuth({
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      id: 'credentials',
+      name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
         try {
-          // First, check if it's one of our hardcoded test users
-          const testUser = testUsers.find(user => 
-            user.email === credentials.email && 
-            user.passwordHash === credentials.password
-          );
+          // Initialize database connection
+          await initializeDb();
 
-          if (testUser) {
+          // Special case for testing - hardcoded test user
+          if (credentials.username === 'FCalkins' && credentials.password === 'password') {
             return {
-              id: testUser.id,
-              email: testUser.email,
-              name: testUser.name,
-              role: testUser.role,
-              departmentId: testUser.departmentId
+              id: '1',
+              name: 'Frank Calkins',
+              email: 'fcalkins@mountaincare.example',
+              role: 'admin',
+              department: 'Human Resources'
             };
           }
 
-          // If not a test user, try database authentication
-          try {
-            if (!AppDataSource.isInitialized) {
-              await AppDataSource.initialize();
-            }
-            
-            const userRepository = AppDataSource.getRepository(User);
-            
-            const user = await userRepository.findOne({
-              where: { email: credentials.email },
-              relations: ['department']
-            });
+          // For regular users, check the database
+          const repository = AppDataSource.getRepository(User);
+          
+          // Find user by username or email
+          const user = await repository.findOne({
+            where: [
+              { username: credentials.username },
+              { email: credentials.username }
+            ]
+          });
 
-            // Here you would typically verify the password hash
-            if (user && user.passwordHash === credentials.password) {
-              await AppDataSource.destroy();
-              return {
-                id: user.id,
-                email: user.email,
-                name: `${user.firstName} ${user.lastName}`,
-                role: user.role,
-                departmentId: user.department?.id
-              };
-            }
-            
-            if (AppDataSource.isInitialized) {
-              await AppDataSource.destroy();
-            }
-            return null;
-          } catch (dbError) {
-            console.error("Database auth error:", dbError);
-            if (AppDataSource.isInitialized) {
-              await AppDataSource.destroy();
-            }
+          // User not found
+          if (!user) {
+            console.log('User not found');
             return null;
           }
+
+          // Compare passwords
+          const isValidPassword = await bcrypt.compare(
+            credentials.password,
+            user.passwordHash
+          );
+
+          // Invalid password
+          if (!isValidPassword) {
+            console.log('Invalid password');
+            return null;
+          }
+
+          // Return user object (without sensitive data)
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            department: user.departmentId
+          };
         } catch (error) {
-          console.error("Auth error:", error);
+          console.error('Authentication error:', error);
           return null;
         }
       }
     })
   ],
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
   callbacks: {
     async jwt({ token, user }) {
+      // First time JWT callback is called, user object is available
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        token.departmentId = user.departmentId;
+        token.department = user.department;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.departmentId = token.departmentId;
-      }
+      // Add properties to session from token
+      session.user.id = token.id;
+      session.user.role = token.role;
+      session.user.department = token.department;
       return session;
     }
   },
   pages: {
     signIn: '/login',
-    error: '/login',
+    error: '/login' // Error code passed in query string as ?error=
   },
-  debug: process.env.NODE_ENV === 'development',
-};
-
-export default NextAuth(authOptions);
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV !== 'production',
+});
