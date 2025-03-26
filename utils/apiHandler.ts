@@ -1,42 +1,19 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../pages/api/auth/[...nextauth]';
 import { AppDataSource } from './db';
 
-// Interface for API handler functions
-interface ApiHandler {
-  (req: NextApiRequest, res: NextApiResponse, session?: any): Promise<void>;
-}
-
-// Interface for API handlers by HTTP method
-interface ApiHandlers {
-  GET?: ApiHandler;
-  POST?: ApiHandler;
-  PUT?: ApiHandler;
-  DELETE?: ApiHandler;
-  PATCH?: ApiHandler;
-}
-
-// Response data interface
-interface ApiResponse {
-  success: boolean;
-  data?: any;
-  error?: string;
-  message?: string;
-}
-
 /**
  * A wrapper for API route handlers to provide consistent error handling and response format
- * @param handlers - Object containing handler functions for different HTTP methods
- * @param requireAuth - Whether the endpoint requires authentication
- * @param requiredRole - Optional role required to access this endpoint
+ * @param {Object} handlers - Object containing handler functions for different HTTP methods
+ * @param {boolean} requireAuth - Whether the endpoint requires authentication
+ * @param {string} requiredRole - Optional role required to access this endpoint
  */
 export const apiHandler = (
-  handlers: ApiHandlers,
-  requireAuth: boolean = true,
-  requiredRole?: string
+  handlers,
+  requireAuth = true,
+  requiredRole = null
 ) => {
-  return async (req: NextApiRequest, res: NextApiResponse<ApiResponse>) => {
+  return async (req, res) => {
     // Ensure database connection
     try {
       if (!AppDataSource.isInitialized) {
@@ -56,7 +33,7 @@ export const apiHandler = (
     }
 
     // Check request method is supported
-    const handler = handlers[req.method as keyof ApiHandlers];
+    const handler = handlers[req.method];
     if (!handler) {
       return res.status(405).json({
         success: false,
@@ -91,7 +68,7 @@ export const apiHandler = (
     try {
       // Execute the handler function
       await handler(req, res, session);
-    } catch (error: any) {
+    } catch (error) {
       console.error(`API Error [${req.method} ${req.url}]:`, error);
 
       // Handle specific TypeORM errors
@@ -116,17 +93,17 @@ export const apiHandler = (
 };
 
 // Helper function to parse query parameters
-export const parseQueryParams = (query: any) => {
-  const params: any = {};
+export const parseQueryParams = (query) => {
+  const params = {};
   
   // Handle pagination
-  params.skip = query.skip ? parseInt(query.skip as string, 10) : 0;
-  params.take = query.take ? parseInt(query.take as string, 10) : 10;
+  params.skip = query.skip ? parseInt(query.skip, 10) : 0;
+  params.take = query.take ? parseInt(query.take, 10) : 10;
   
   // Handle sorting
   if (query.sortBy) {
     params.order = {
-      [query.sortBy as string]: (query.order as string)?.toLowerCase() === 'desc' ? 'DESC' : 'ASC',
+      [query.sortBy]: (query.order?.toLowerCase() === 'desc' ? 'DESC' : 'ASC'),
     };
   }
   
@@ -144,7 +121,7 @@ export const parseQueryParams = (query: any) => {
 };
 
 // Helper function to validate access to department data
-export const validateDepartmentAccess = (session: any, departmentId?: string) => {
+export const validateDepartmentAccess = (session, departmentId) => {
   // Skip validation if no department ID is provided
   if (!departmentId) return true;
   
@@ -164,9 +141,7 @@ export const validateDepartmentAccess = (session: any, departmentId?: string) =>
 
 // Error class for API errors
 export class ApiError extends Error {
-  statusCode: number;
-
-  constructor(message: string, statusCode: number = 500) {
+  constructor(message, statusCode = 500) {
     super(message);
     this.statusCode = statusCode;
     this.name = 'ApiError';

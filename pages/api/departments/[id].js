@@ -1,7 +1,7 @@
 import { apiHandler, throwApiError } from '../../../utils/apiHandler';
 import { AppDataSource } from '../../../utils/db';
-import { Department } from '../../../entities/Department';
-import { Employee } from '../../../entities/Employee';
+import { DepartmentEntity } from '../../../entities/Department';
+import { EmployeeEntity } from '../../../entities/Employee';
 
 export default apiHandler(
   {
@@ -9,7 +9,7 @@ export default apiHandler(
     GET: async (req, res, session) => {
       const { id } = req.query;
       
-      const departmentRepository = AppDataSource.getRepository(Department);
+      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
       
       // Get the department
       const department = await departmentRepository.findOne({
@@ -22,7 +22,7 @@ export default apiHandler(
       }
       
       // Get employee count for this department
-      const employeeRepository = AppDataSource.getRepository(Employee);
+      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
       const employeeCount = await employeeRepository.count({
         where: { departmentId: id }
       });
@@ -55,7 +55,7 @@ export default apiHandler(
       }
       
       const { id } = req.query;
-      const departmentRepository = AppDataSource.getRepository(Department);
+      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
       
       // Check if department exists
       const department = await departmentRepository.findOneBy({ id: id });
@@ -75,7 +75,7 @@ export default apiHandler(
       
       // If assigning a manager, check if employee exists
       if (req.body.managerId && req.body.managerId !== department.managerId) {
-        const employeeRepository = AppDataSource.getRepository(Employee);
+        const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
         const manager = await employeeRepository.findOneBy({ id: req.body.managerId });
         
         if (!manager) {
@@ -106,8 +106,8 @@ export default apiHandler(
       
       const { id } = req.query;
       
-      const departmentRepository = AppDataSource.getRepository(Department);
-      const employeeRepository = AppDataSource.getRepository(Employee);
+      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
+      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
       
       // Check if department exists
       const department = await departmentRepository.findOneBy({ id: id });

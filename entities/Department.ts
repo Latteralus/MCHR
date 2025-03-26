@@ -1,27 +1,54 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
-import { User } from "./User";
+import { EntitySchema } from "typeorm";
 
-@Entity("departments")
+// Class definition for IntelliSense/typing
 export class Department {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
-
-  @Column({ length: 100, unique: true })
-  name: string;
-
-  @Column({ nullable: true })
-  description: string;
-
-  @Column({ nullable: true })
-  managerId: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  // Virtual relation - not stored in the database directly
-  @OneToMany(() => User, user => user.department)
-  employees: User[];
+  id;
+  name;
+  description;
+  managerId;
+  createdAt;
+  updatedAt;
+  employees;
 }
+
+// Entity Schema definition for TypeORM
+export const DepartmentEntity = new EntitySchema({
+  name: "Department",
+  target: Department,
+  tableName: "departments",
+  columns: {
+    id: {
+      primary: true,
+      type: "uuid",
+      generated: "uuid"
+    },
+    name: {
+      type: "varchar",
+      length: 100,
+      unique: true
+    },
+    description: {
+      type: "varchar",
+      nullable: true
+    },
+    managerId: {
+      type: "uuid",
+      nullable: true
+    },
+    createdAt: {
+      type: "timestamp",
+      createDate: true
+    },
+    updatedAt: {
+      type: "timestamp",
+      updateDate: true
+    }
+  },
+  relations: {
+    employees: {
+      type: "one-to-many",
+      target: "User",
+      inverseSide: "department"
+    }
+  }
+});

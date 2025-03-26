@@ -1,7 +1,7 @@
 import { apiHandler, validateDepartmentAccess, throwApiError } from '../../../utils/apiHandler';
 import { AppDataSource } from '../../../utils/db';
-import { Employee } from '../../../entities/Employee';
-import { Department } from '../../../entities/Department';
+import { EmployeeEntity } from '../../../entities/Employee';
+import { DepartmentEntity } from '../../../entities/Department';
 
 export default apiHandler(
   {
@@ -10,7 +10,7 @@ export default apiHandler(
       const { id } = req.query;
       
       // Get employee with department
-      const employeeRepository = AppDataSource.getRepository(Employee);
+      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
       const employee = await employeeRepository.findOne({
         where: { id: id },
         relations: ['department', 'manager']
@@ -37,7 +37,7 @@ export default apiHandler(
     // PUT: Update an employee
     PUT: async (req, res, session) => {
       const { id } = req.query;
-      const employeeRepository = AppDataSource.getRepository(Employee);
+      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
       
       // Find the employee to update
       const employee = await employeeRepository.findOne({
@@ -65,7 +65,7 @@ export default apiHandler(
       
       // If department ID is changing, check if it exists
       if (req.body.departmentId && req.body.departmentId !== employee.departmentId) {
-        const departmentRepository = AppDataSource.getRepository(Department);
+        const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
         const department = await departmentRepository.findOneBy({ id: req.body.departmentId });
         
         if (!department) {
@@ -116,7 +116,7 @@ export default apiHandler(
         throwApiError.forbidden('You do not have permission to delete employees');
       }
       
-      const employeeRepository = AppDataSource.getRepository(Employee);
+      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
       
       // Find the employee to delete
       const employee = await employeeRepository.findOne({

@@ -1,13 +1,13 @@
 import { apiHandler, parseQueryParams, validateDepartmentAccess, throwApiError } from '../../../utils/apiHandler';
 import { AppDataSource } from '../../../utils/db';
-import { Employee } from '../../../entities/Employee';
-import { Department } from '../../../entities/Department';
+import { EmployeeEntity } from '../../../entities/Employee';
+import { DepartmentEntity } from '../../../entities/Department';
 
 export default apiHandler(
   {
     // GET: List employees with filtering, pagination, and sorting
     GET: async (req, res, session) => {
-      const employeeRepository = AppDataSource.getRepository(Employee);
+      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
       const params = parseQueryParams(req.query);
       
       // Build the query
@@ -97,7 +97,7 @@ export default apiHandler(
       
       // If department ID is provided, check if it exists
       if (departmentId) {
-        const departmentRepository = AppDataSource.getRepository(Department);
+        const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
         const department = await departmentRepository.findOneBy({ id: departmentId });
         
         if (!department) {
@@ -106,7 +106,7 @@ export default apiHandler(
       }
       
       // Check if employee with this email already exists
-      const employeeRepository = AppDataSource.getRepository(Employee);
+      const employeeRepository = AppDataSource.getRepository(EmployeeEntity);
       const existingEmployee = await employeeRepository.findOneBy({ email });
       
       if (existingEmployee) {

@@ -1,92 +1,129 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm";
-import { Employee } from "./Employee";
+import { EntitySchema } from "typeorm";
 
 // Enum for leave types
-export enum LeaveType {
-  VACATION = "vacation",
-  SICK = "sick",
-  PERSONAL = "personal",
-  BEREAVEMENT = "bereavement",
-  JURY_DUTY = "jury_duty",
-  MATERNITY = "maternity",
-  PATERNITY = "paternity",
-  UNPAID = "unpaid",
-  OTHER = "other"
-}
+export const LeaveType = {
+  VACATION: "vacation",
+  SICK: "sick",
+  PERSONAL: "personal",
+  BEREAVEMENT: "bereavement",
+  JURY_DUTY: "jury_duty",
+  MATERNITY: "maternity",
+  PATERNITY: "paternity",
+  UNPAID: "unpaid",
+  OTHER: "other"
+};
 
 // Enum for leave status
-export enum LeaveStatus {
-  PENDING = "pending",
-  APPROVED = "approved",
-  REJECTED = "rejected",
-  CANCELLED = "cancelled",
-  COMPLETED = "completed"
-}
+export const LeaveStatus = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  CANCELLED: "cancelled",
+  COMPLETED: "completed"
+};
 
-@Entity("leave_requests")
+// Class definition for IntelliSense/typing
 export class Leave {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
-
-  @Column({ type: "date" })
-  startDate: Date;
-
-  @Column({ type: "date" })
-  endDate: Date;
-
-  @Column({
-    type: "enum",
-    enum: LeaveType,
-    default: LeaveType.VACATION
-  })
-  leaveType: LeaveType;
-
-  @Column({
-    type: "enum",
-    enum: LeaveStatus,
-    default: LeaveStatus.PENDING
-  })
-  status: LeaveStatus;
-
-  @Column({ nullable: true })
-  reason: string;
-
-  @Column({ type: "decimal", precision: 4, scale: 2, default: 1 })
-  totalDays: number;
-
-  // Employee relationship
-  @ManyToOne(() => Employee, employee => employee.leaveRequests, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "employeeId" })
-  employee: Employee;
-
-  @Column()
-  employeeId: string;
-
-  // Approval details
-  @Column({ nullable: true })
-  approvedById: string;
-
-  @Column({ nullable: true })
-  approvedAt: Date;
-
-  @Column({ nullable: true })
-  approverNotes: string;
-
-  // System metadata
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  // Document attachments (e.g., medical certificates)
-  @Column({ nullable: true })
-  attachments: string;
-
-  // Half-day indicators
-  @Column({ default: false })
-  isFirstDayHalf: boolean;
-
-  @Column({ default: false })
-  isLastDayHalf: boolean;
+  id;
+  startDate;
+  endDate;
+  leaveType;
+  status;
+  reason;
+  totalDays;
+  employee;
+  employeeId;
+  approvedById;
+  approvedAt;
+  approverNotes;
+  createdAt;
+  updatedAt;
+  attachments;
+  isFirstDayHalf;
+  isLastDayHalf;
 }
+
+// Entity Schema definition for TypeORM
+export const LeaveEntity = new EntitySchema({
+  name: "Leave",
+  target: Leave,
+  tableName: "leave_requests",
+  columns: {
+    id: {
+      primary: true,
+      type: "uuid",
+      generated: "uuid"
+    },
+    startDate: {
+      type: "date"
+    },
+    endDate: {
+      type: "date"
+    },
+    leaveType: {
+      type: "enum",
+      enum: Object.values(LeaveType),
+      default: LeaveType.VACATION
+    },
+    status: {
+      type: "enum",
+      enum: Object.values(LeaveStatus),
+      default: LeaveStatus.PENDING
+    },
+    reason: {
+      type: "varchar",
+      nullable: true
+    },
+    totalDays: {
+      type: "decimal",
+      precision: 4,
+      scale: 2,
+      default: 1
+    },
+    employeeId: {
+      type: "uuid"
+    },
+    approvedById: {
+      type: "uuid",
+      nullable: true
+    },
+    approvedAt: {
+      type: "timestamp",
+      nullable: true
+    },
+    approverNotes: {
+      type: "varchar",
+      nullable: true
+    },
+    createdAt: {
+      type: "timestamp",
+      createDate: true
+    },
+    updatedAt: {
+      type: "timestamp",
+      updateDate: true
+    },
+    attachments: {
+      type: "varchar",
+      nullable: true
+    },
+    isFirstDayHalf: {
+      type: "boolean",
+      default: false
+    },
+    isLastDayHalf: {
+      type: "boolean",
+      default: false
+    }
+  },
+  relations: {
+    employee: {
+      type: "many-to-one",
+      target: "Employee",
+      joinColumn: {
+        name: "employeeId"
+      },
+      onDelete: "CASCADE"
+    }
+  }
+});

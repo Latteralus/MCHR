@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { AppDataSource } from "../../../utils/db";
-import { User } from "../../../entities/User";
+import { User, UserEntity } from "../../../entities/User";
 
 // Initialize the TypeORM connection when the API route is accessed
 const initializeDb = async () => {
@@ -16,7 +16,7 @@ const initializeDb = async () => {
   }
 };
 
-export default NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -29,7 +29,7 @@ export default NextAuth({
           await initializeDb();
           
           // Find the user by email
-          const userRepository = AppDataSource.getRepository(User);
+          const userRepository = AppDataSource.getRepository(UserEntity);
           const user = await userRepository.findOne({ 
             where: { email: credentials.email },
             relations: ["department"] 
@@ -89,4 +89,6 @@ export default NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV !== 'production',
-});
+};
+
+export default NextAuth(authOptions);

@@ -1,12 +1,12 @@
 import { apiHandler, throwApiError } from '../../../utils/apiHandler';
 import { AppDataSource } from '../../../utils/db';
-import { Department } from '../../../entities/Department';
+import { DepartmentEntity } from '../../../entities/Department';
 
 export default apiHandler(
   {
     // GET: List all departments
     GET: async (req, res, session) => {
-      const departmentRepository = AppDataSource.getRepository(Department);
+      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
       
       // Build query options
       const options = {
@@ -60,7 +60,7 @@ export default apiHandler(
         throwApiError.badRequest('Department name is required');
       }
       
-      const departmentRepository = AppDataSource.getRepository(Department);
+      const departmentRepository = AppDataSource.getRepository(DepartmentEntity);
       
       // Check if department already exists
       const existingDepartment = await departmentRepository.findOneBy({ name });

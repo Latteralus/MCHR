@@ -1,143 +1,220 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from "typeorm";
-import { Department } from "./Department";
-import { Attendance } from "./Attendance";
-import { Leave } from "./Leave";
-import { Compliance } from "./Compliance";
-import { Document } from "./Document";
+import { EntitySchema } from "typeorm";
 
 // Enum for employment status
-export enum EmploymentStatus {
-  ACTIVE = "active",
-  ONBOARDING = "onboarding",
-  ON_LEAVE = "on_leave",
-  TERMINATED = "terminated",
-  SUSPENDED = "suspended"
-}
+export const EmploymentStatus = {
+  ACTIVE: "active",
+  ONBOARDING: "onboarding",
+  ON_LEAVE: "on_leave",
+  TERMINATED: "terminated",
+  SUSPENDED: "suspended"
+};
 
 // Enum for employment type
-export enum EmploymentType {
-  FULL_TIME = "full_time",
-  PART_TIME = "part_time",
-  CONTRACT = "contract",
-  TEMPORARY = "temporary",
-  INTERN = "intern"
-}
+export const EmploymentType = {
+  FULL_TIME: "full_time",
+  PART_TIME: "part_time",
+  CONTRACT: "contract",
+  TEMPORARY: "temporary",
+  INTERN: "intern"
+};
 
-@Entity("employees")
+// Class definition for IntelliSense/typing
 export class Employee {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
-
-  @Column({ length: 100 })
-  firstName: string;
-
-  @Column({ length: 100 })
-  lastName: string;
-
-  @Column({ unique: true })
-  email: string;
-
-  @Column({ nullable: true, length: 20 })
-  phone: string;
-
-  @Column({ nullable: true })
-  address: string;
-
-  @Column({ nullable: true })
-  city: string;
-
-  @Column({ nullable: true, length: 2 })
-  state: string;
-
-  @Column({ nullable: true, length: 10 })
-  zipCode: string;
-
-  @Column({ nullable: true })
-  dateOfBirth: Date;
-
-  @Column({ nullable: true })
-  socialSecurityNumber: string;
-
-  @Column({ nullable: true })
-  emergencyContactName: string;
-
-  @Column({ nullable: true })
-  emergencyContactPhone: string;
-
-  @Column({ nullable: true })
-  emergencyContactRelationship: string;
-
-  // Employment details
-  @Column()
-  hireDate: Date;
-
-  @Column({ nullable: true })
-  terminationDate: Date;
-
-  @Column({ 
-    type: "enum",
-    enum: EmploymentStatus,
-    default: EmploymentStatus.ONBOARDING
-  })
-  status: EmploymentStatus;
-
-  @Column({ 
-    type: "enum",
-    enum: EmploymentType,
-    default: EmploymentType.FULL_TIME
-  })
-  employmentType: EmploymentType;
-
-  @Column({ length: 100 })
-  position: string;
-
-  @Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
-  salary: number;
-
-  @Column({ type: "decimal", precision: 5, scale: 2, nullable: true })
-  hourlyRate: number;
-
-  @Column({ nullable: true })
-  managerNotes: string;
-
-  // Department relationship
-  @ManyToOne(() => Department, { nullable: true })
-  @JoinColumn({ name: "departmentId" })
-  department: Department;
-
-  @Column({ nullable: true })
-  departmentId: string;
-
-  // Manager relationship (self-referencing)
-  @ManyToOne(() => Employee, { nullable: true })
-  @JoinColumn({ name: "managerId" })
-  manager: Employee;
-
-  @Column({ nullable: true })
-  managerId: string;
-
-  // Related records
-  @OneToMany(() => Attendance, attendance => attendance.employee)
-  attendanceRecords: Attendance[];
-
-  @OneToMany(() => Leave, leave => leave.employee)
-  leaveRequests: Leave[];
-
-  @OneToMany(() => Compliance, compliance => compliance.employee)
-  complianceRecords: Compliance[];
-
-  @OneToMany(() => Document, document => document.employee)
-  documents: Document[];
-
-  // System metadata
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  // Virtual fields (not stored in DB)
-  get fullName(): string {
+  id;
+  firstName;
+  lastName;
+  email;
+  phone;
+  address;
+  city;
+  state;
+  zipCode;
+  dateOfBirth;
+  socialSecurityNumber;
+  emergencyContactName;
+  emergencyContactPhone;
+  emergencyContactRelationship;
+  hireDate;
+  terminationDate;
+  status;
+  employmentType;
+  position;
+  salary;
+  hourlyRate;
+  managerNotes;
+  department;
+  departmentId;
+  manager;
+  managerId;
+  attendanceRecords;
+  leaveRequests;
+  complianceRecords;
+  documents;
+  createdAt;
+  updatedAt;
+  
+  // Virtual property (not stored in DB)
+  get fullName() {
     return `${this.firstName} ${this.lastName}`;
   }
 }
+
+// Entity Schema definition for TypeORM
+export const EmployeeEntity = new EntitySchema({
+  name: "Employee",
+  target: Employee,
+  tableName: "employees",
+  columns: {
+    id: {
+      primary: true,
+      type: "uuid",
+      generated: "uuid"
+    },
+    firstName: {
+      type: "varchar",
+      length: 100
+    },
+    lastName: {
+      type: "varchar",
+      length: 100
+    },
+    email: {
+      type: "varchar",
+      unique: true
+    },
+    phone: {
+      type: "varchar",
+      length: 20,
+      nullable: true
+    },
+    address: {
+      type: "varchar",
+      nullable: true
+    },
+    city: {
+      type: "varchar",
+      nullable: true
+    },
+    state: {
+      type: "varchar",
+      length: 2,
+      nullable: true
+    },
+    zipCode: {
+      type: "varchar",
+      length: 10,
+      nullable: true
+    },
+    dateOfBirth: {
+      type: "date",
+      nullable: true
+    },
+    socialSecurityNumber: {
+      type: "varchar",
+      nullable: true
+    },
+    emergencyContactName: {
+      type: "varchar",
+      nullable: true
+    },
+    emergencyContactPhone: {
+      type: "varchar",
+      nullable: true
+    },
+    emergencyContactRelationship: {
+      type: "varchar",
+      nullable: true
+    },
+    hireDate: {
+      type: "date"
+    },
+    terminationDate: {
+      type: "date",
+      nullable: true
+    },
+    status: {
+      type: "enum",
+      enum: Object.values(EmploymentStatus),
+      default: EmploymentStatus.ONBOARDING
+    },
+    employmentType: {
+      type: "enum",
+      enum: Object.values(EmploymentType),
+      default: EmploymentType.FULL_TIME
+    },
+    position: {
+      type: "varchar",
+      length: 100
+    },
+    salary: {
+      type: "decimal",
+      precision: 10,
+      scale: 2,
+      default: 0
+    },
+    hourlyRate: {
+      type: "decimal",
+      precision: 5,
+      scale: 2,
+      nullable: true
+    },
+    managerNotes: {
+      type: "varchar",
+      nullable: true
+    },
+    departmentId: {
+      type: "uuid",
+      nullable: true
+    },
+    managerId: {
+      type: "uuid",
+      nullable: true
+    },
+    createdAt: {
+      type: "timestamp",
+      createDate: true
+    },
+    updatedAt: {
+      type: "timestamp",
+      updateDate: true
+    }
+  },
+  relations: {
+    department: {
+      type: "many-to-one",
+      target: "Department",
+      joinColumn: {
+        name: "departmentId"
+      },
+      nullable: true
+    },
+    manager: {
+      type: "many-to-one",
+      target: "Employee",
+      joinColumn: {
+        name: "managerId"
+      },
+      nullable: true
+    },
+    attendanceRecords: {
+      type: "one-to-many",
+      target: "Attendance",
+      inverseSide: "employee"
+    },
+    leaveRequests: {
+      type: "one-to-many",
+      target: "Leave",
+      inverseSide: "employee"
+    },
+    complianceRecords: {
+      type: "one-to-many",
+      target: "Compliance",
+      inverseSide: "employee"
+    },
+    documents: {
+      type: "one-to-many",
+      target: "Document",
+      inverseSide: "employee"
+    }
+  }
+});

@@ -1,131 +1,179 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm";
-import { Employee } from "./Employee";
-import { Department } from "./Department";
+import { EntitySchema } from "typeorm";
 
 // Enum for document types
-export enum DocumentType {
-  EMPLOYEE_RECORD = "employee_record",
-  POLICY = "policy",
-  CONTRACT = "contract",
-  HANDBOOK = "handbook",
-  LICENSE = "license",
-  CERTIFICATION = "certification",
-  MEDICAL = "medical",
-  PERFORMANCE_REVIEW = "performance_review",
-  TAX_FORM = "tax_form",
-  TRAINING = "training",
-  OTHER = "other"
-}
+export const DocumentType = {
+  EMPLOYEE_RECORD: "employee_record",
+  POLICY: "policy",
+  CONTRACT: "contract",
+  HANDBOOK: "handbook",
+  LICENSE: "license",
+  CERTIFICATION: "certification",
+  MEDICAL: "medical",
+  PERFORMANCE_REVIEW: "performance_review",
+  TAX_FORM: "tax_form",
+  TRAINING: "training",
+  OTHER: "other"
+};
 
 // Enum for document access levels
-export enum DocumentAccessLevel {
-  PUBLIC = "public",           // All employees can view
-  DEPARTMENT = "department",   // Only department members and above
-  MANAGER = "manager",         // Only managers and above
-  HR = "hr",                   // Only HR staff and admins
-  ADMIN = "admin",             // Only admins
-  INDIVIDUAL = "individual"    // Only the specific employee
-}
+export const DocumentAccessLevel = {
+  PUBLIC: "public",           // All employees can view
+  DEPARTMENT: "department",   // Only department members and above
+  MANAGER: "manager",         // Only managers and above
+  HR: "hr",                   // Only HR staff and admins
+  ADMIN: "admin",             // Only admins
+  INDIVIDUAL: "individual"    // Only the specific employee
+};
 
-@Entity("documents")
+// Class definition for IntelliSense/typing
 export class Document {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
-
-  @Column({ length: 255 })
-  title: string;
-
-  @Column({ nullable: true })
-  description: string;
-
-  @Column({
-    type: "enum",
-    enum: DocumentType,
-    default: DocumentType.OTHER
-  })
-  documentType: DocumentType;
-
-  @Column({
-    type: "enum",
-    enum: DocumentAccessLevel,
-    default: DocumentAccessLevel.HR
-  })
-  accessLevel: DocumentAccessLevel;
-
-  @Column()
-  fileName: string;
-
-  @Column()
-  filePath: string;
-
-  @Column({ nullable: true })
-  fileSize: number;
-
-  @Column({ nullable: true })
-  mimeType: string;
-
-  @Column({ default: false })
-  isEncrypted: boolean;
-
-  @Column({ default: 1 })
-  version: number;
-
-  // Employee relationship (if this document belongs to a specific employee)
-  @ManyToOne(() => Employee, employee => employee.documents, { nullable: true })
-  @JoinColumn({ name: "employeeId" })
-  employee: Employee;
-
-  @Column({ nullable: true })
-  employeeId: string;
-
-  // Department relationship (if this document belongs to a department)
-  @ManyToOne(() => Department, { nullable: true })
-  @JoinColumn({ name: "departmentId" })
-  department: Department;
-
-  @Column({ nullable: true })
-  departmentId: string;
-
-  // Expiration date (for licenses, certifications, etc.)
-  @Column({ nullable: true })
-  expirationDate: Date;
-
-  // Document uploader
-  @Column()
-  uploadedById: string;
-
-  // Document metadata
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  // Document access tracking for HIPAA compliance
-  @Column({ type: "jsonb", nullable: true })
-  accessLog: any;
-
-  // Retention period in days (0 means indefinite)
-  @Column({ default: 0 })
-  retentionPeriod: number;
-
-  // Calculated deletion date based on retention period
-  @Column({ nullable: true })
-  scheduledDeletionDate: Date;
-
-  // Tags for easy searching
-  @Column({ type: "simple-array", nullable: true })
-  tags: string[];
-
-  // External reference (e.g., for documents from external systems)
-  @Column({ nullable: true })
-  externalReference: string;
-
-  // Whether document requires acknowledgment
-  @Column({ default: false })
-  requiresAcknowledgment: boolean;
-
-  // Acknowledgment tracking
-  @Column({ type: "jsonb", nullable: true })
-  acknowledgments: any;
+  id;
+  title;
+  description;
+  documentType;
+  accessLevel;
+  fileName;
+  filePath;
+  fileSize;
+  mimeType;
+  isEncrypted;
+  version;
+  employee;
+  employeeId;
+  department;
+  departmentId;
+  expirationDate;
+  uploadedById;
+  createdAt;
+  updatedAt;
+  accessLog;
+  retentionPeriod;
+  scheduledDeletionDate;
+  tags;
+  externalReference;
+  requiresAcknowledgment;
+  acknowledgments;
 }
+
+// Entity Schema definition for TypeORM
+export const DocumentEntity = new EntitySchema({
+  name: "Document",
+  target: Document,
+  tableName: "documents",
+  columns: {
+    id: {
+      primary: true,
+      type: "uuid",
+      generated: "uuid"
+    },
+    title: {
+      type: "varchar",
+      length: 255
+    },
+    description: {
+      type: "varchar",
+      nullable: true
+    },
+    documentType: {
+      type: "enum",
+      enum: Object.values(DocumentType),
+      default: DocumentType.OTHER
+    },
+    accessLevel: {
+      type: "enum",
+      enum: Object.values(DocumentAccessLevel),
+      default: DocumentAccessLevel.HR
+    },
+    fileName: {
+      type: "varchar"
+    },
+    filePath: {
+      type: "varchar"
+    },
+    fileSize: {
+      type: "int",
+      nullable: true
+    },
+    mimeType: {
+      type: "varchar",
+      nullable: true
+    },
+    isEncrypted: {
+      type: "boolean",
+      default: false
+    },
+    version: {
+      type: "int",
+      default: 1
+    },
+    employeeId: {
+      type: "uuid",
+      nullable: true
+    },
+    departmentId: {
+      type: "uuid",
+      nullable: true
+    },
+    expirationDate: {
+      type: "date",
+      nullable: true
+    },
+    uploadedById: {
+      type: "uuid"
+    },
+    createdAt: {
+      type: "timestamp",
+      createDate: true
+    },
+    updatedAt: {
+      type: "timestamp",
+      updateDate: true
+    },
+    accessLog: {
+      type: "json",
+      nullable: true
+    },
+    retentionPeriod: {
+      type: "int",
+      default: 0
+    },
+    scheduledDeletionDate: {
+      type: "date",
+      nullable: true
+    },
+    tags: {
+      type: "simple-array",
+      nullable: true
+    },
+    externalReference: {
+      type: "varchar",
+      nullable: true
+    },
+    requiresAcknowledgment: {
+      type: "boolean",
+      default: false
+    },
+    acknowledgments: {
+      type: "json",
+      nullable: true
+    }
+  },
+  relations: {
+    employee: {
+      type: "many-to-one",
+      target: "Employee",
+      joinColumn: {
+        name: "employeeId"
+      },
+      nullable: true
+    },
+    department: {
+      type: "many-to-one",
+      target: "Department",
+      joinColumn: {
+        name: "departmentId"
+      },
+      nullable: true
+    }
+  }
+});
