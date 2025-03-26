@@ -3,6 +3,13 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Layout from '../components/common/Layout';
 
+export default function Dashboard() {
+  const [sidebarActive, setSidebarActive] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarActive(!sidebarActive);
+  };
+
   return (
     <>
       <Head>
@@ -292,3 +299,4 @@ import Layout from '../components/common/Layout';
       </button>
     </>
   );
+}
