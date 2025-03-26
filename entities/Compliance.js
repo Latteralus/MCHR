@@ -1,132 +1,37 @@
+// entities/Compliance.js
 import { EntitySchema } from "typeorm";
 
-// Enum for compliance type
-export const ComplianceType = {
-  LICENSE: "license",
-  CERTIFICATION: "certification",
-  TRAINING: "training",
-  BACKGROUND_CHECK: "background_check",
-  POLICY_ACKNOWLEDGEMENT: "policy_acknowledgement",
-  HEALTH_SCREENING: "health_screening",
-  HIPAA_TRAINING: "hipaa_training",
-  REVIEW: "review",
-  OTHER: "other"
-};
-
-// Enum for compliance status
-export const ComplianceStatus = {
-  VALID: "valid",
-  EXPIRING_SOON: "expiring_soon",
-  EXPIRED: "expired",
-  PENDING: "pending",
-  INCOMPLETE: "incomplete",
-  NOT_REQUIRED: "not_required"
-};
-
-// Class definition for IntelliSense/typing
-export class Compliance {
-  id;
-  title;
-  type;
-  status;
-  description;
-  issueDate;
-  expirationDate;
-  issuingAuthority;
-  licenseNumber;
-  employee;
-  employeeId;
-  documentId;
-  healthData;
-  requiresEncryption;
-  reminderDays;
-  remindersEnabled;
-  lastReminderSent;
-  verifiedById;
-  verifiedAt;
-  createdAt;
-  updatedAt;
-  accessLog;
-}
-
-// Entity Schema definition for TypeORM
-export const ComplianceEntity = new EntitySchema({
+const Compliance = new EntitySchema({
   name: "Compliance",
-  target: Compliance,
-  tableName: "compliance_records",
+  tableName: "compliances",
   columns: {
     id: {
       primary: true,
       type: "uuid",
       generated: "uuid"
     },
-    title: {
+    licenseType: {
       type: "varchar",
-      length: 100
-    },
-    type: {
-      type: "enum",
-      enum: Object.values(ComplianceType),
-      default: ComplianceType.LICENSE
-    },
-    status: {
-      type: "enum",
-      enum: Object.values(ComplianceStatus),
-      default: ComplianceStatus.PENDING
-    },
-    description: {
-      type: "varchar",
-      nullable: true
-    },
-    issueDate: {
-      type: "date",
-      nullable: true
-    },
-    expirationDate: {
-      type: "date",
-      nullable: true
-    },
-    issuingAuthority: {
-      type: "varchar",
-      nullable: true
+      length: 255
     },
     licenseNumber: {
       type: "varchar",
+      length: 100,
       nullable: true
     },
-    employeeId: {
-      type: "uuid"
+    issueDate: {
+      type: "date"
     },
-    documentId: {
-      type: "uuid",
-      nullable: true
+    expirationDate: {
+      type: "date"
     },
-    healthData: {
+    status: {
       type: "varchar",
-      nullable: true
+      length: 50,
+      default: "valid"
     },
-    requiresEncryption: {
-      type: "boolean",
-      default: false
-    },
-    reminderDays: {
-      type: "int",
-      default: 30
-    },
-    remindersEnabled: {
-      type: "boolean",
-      default: false
-    },
-    lastReminderSent: {
-      type: "timestamp",
-      nullable: true
-    },
-    verifiedById: {
-      type: "uuid",
-      nullable: true
-    },
-    verifiedAt: {
-      type: "timestamp",
+    notes: {
+      type: "text",
       nullable: true
     },
     createdAt: {
@@ -136,15 +41,10 @@ export const ComplianceEntity = new EntitySchema({
     updatedAt: {
       type: "timestamp",
       updateDate: true
-    },
-    accessLog: {
-      type: "varchar",
-      nullable: true
     }
   },
   relations: {
-    // Change property name to match column name
-    employeeId: {
+    employee: {
       type: "many-to-one",
       target: "Employee",
       joinColumn: {
@@ -154,3 +54,5 @@ export const ComplianceEntity = new EntitySchema({
     }
   }
 });
+
+export default Compliance;

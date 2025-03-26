@@ -46,7 +46,9 @@
   - [x] pages/api/attendance/index.js (GET, POST)
   - [x] pages/api/attendance/[id].js (GET, PUT, DELETE)
 - [ ] Create leave management API route
-- [ ] Create compliance API route
+- [x] Create compliance API route
+  - [x] pages/api/compliance/index.js (GET, POST)
+  - [x] pages/api/compliance/[id].js (GET, PUT, DELETE)
 - [ ] Create documents API route
 - [x] Implement middleware for authentication and role-based access control
 
@@ -78,10 +80,10 @@
 - [ ] Implement notification system
 
 ## Compliance Management
-- [ ] Create components/compliance/ComplianceCard.jsx
-- [ ] Implement license/certification tracking
-- [ ] Create pages/compliance.js
-- [ ] Implement HIPAA compliance features
+- [x] Create components/compliance/ComplianceCard.jsx
+- [x] Implement license/certification tracking
+- [x] Create pages/compliance.js
+- [x] Implement HIPAA compliance features
 
 ## Document Management
 - [ ] Create components/documents/DocumentManager.jsx
@@ -128,9 +130,10 @@ We have completed the following:
 - Fixed relation property names in EntitySchema definitions to match column names
 - Login page creation and Authentication provider
 - Created database utilities for migrations and seeding
-- Implemented API routes for employee, department, and attendance management with proper auth checks
+- Implemented API routes for employee, department, attendance, and compliance management with proper auth checks
 - Created Employee Management UI (list, profile, form components & pages)
 - Created Attendance Management UI (log, calendar components & pages)
+- Created Compliance Management UI (compliance card component & page)
 - Created shared Layout component
 - Fixed TypeScript configuration for Vercel deployment
 - Created .env.local template for local development
@@ -139,8 +142,8 @@ We have completed the following:
 1. Set up PostgreSQL database locally
 2. Generate and run the initial migration
 3. Implement leave management module
-4. Implement compliance tracking module
-5. Implement document management system
+4. Implement document management system
+5. Implement onboarding/offboarding modules
 
 ### Blockers & Issues
 - *Add any blockers or issues as they arise*
